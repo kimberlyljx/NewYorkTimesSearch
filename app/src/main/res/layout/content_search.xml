@@ -34,10 +34,19 @@
         android:layout_alignParentEnd="true"
         android:onClick="onArticleSearch"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rvResults"
+    <android.support.v4.widget.SwipeRefreshLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swipeContainer"
         android:layout_below="@+id/btnSearch"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rvResults"
+            android:layout_below="@+id/btnSearch"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </RelativeLayout>

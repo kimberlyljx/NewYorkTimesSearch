@@ -1,6 +1,7 @@
 package com.codepath.newyorktimesearch;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -8,8 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.codepath.newyorktimesearch.activities.ArticleActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -22,9 +23,17 @@ import java.util.List;
 // Note that we specify the custom ViewHolder which gives us access to our views
 public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHolder> {
 
+    // Store a member variable for the articles
+    private List<Article> mArticles;
+
+    // Pass in the contact array into the constructor
+    public ArticlesAdapter(List<Article> articles) {
+        mArticles = articles;
+    }
+
     // Provide a direct reference to each of the views within a data item
     // Used to cache the view within the item layout for the fast access
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         // Holder contains member variable for any view that will be set as you render a row
         public ImageView ivImage;
         public TextView tvTitle;
@@ -48,18 +57,16 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         @Override
         public void onClick(View view) {
             int position = getLayoutPosition(); // gets item position
-            Article article = articles.get(position);
-            // We can access the data within the views
-            Toast.makeText(context, tvTitle.getText(), Toast.LENGTH_SHORT).show();
+            Article article = mArticles.get(position);
+            // Toast.makeText(context, article.getHeadline(), Toast.LENGTH_SHORT).show();
+
+            // Create an intent to display article
+            Intent intent = new Intent(context, ArticleActivity.class);
+            // pass in that article to intent
+            intent.putExtra("article", article);
+            //launch the activity
+            context.startActivity(intent);
         }
-    }
-
-    // Store a member variable for the articles
-    private List<Article> mArticles;
-
-    // Pass in the contact array into the constructor
-    public ArticlesAdapter(List<Article> articles) {
-        mArticles = articles;
     }
 
     // Usually involves inflating a layout from XML and returning the holder
@@ -72,7 +79,7 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         View articleView = inflater.inflate(R.layout.item_article, parent, false);
 
         // Return a new holder instance
-        ViewHolder viewHolder = new ViewHolder(articleView);
+        ViewHolder viewHolder = new ViewHolder(context, articleView);
         return viewHolder;
     }
 
@@ -102,6 +109,18 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
     @Override
     public int getItemCount() {
         return mArticles.size();
+    }
+
+    // Clean all elements of the recycler
+    public void clear() {
+        mArticles.clear();
+        notifyDataSetChanged();
+    }
+
+    // Add a list of items
+    public void addAll(List<Article> articlesList) {
+        mArticles.addAll(articlesList);
+        notifyDataSetChanged();
     }
 
 }
