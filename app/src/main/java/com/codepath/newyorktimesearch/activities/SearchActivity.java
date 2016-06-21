@@ -1,6 +1,7 @@
 package com.codepath.newyorktimesearch.activities;
 
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -36,6 +37,8 @@ public class SearchActivity extends AppCompatActivity {
 
     // @BindView(R.id.gvResults) GridView gvResults;
 
+    private SwipeRefreshLayout swipeContainer;
+
     ArrayList<Article> articles;
     // ArticleArrayAdapter adapter;
     ArticlesAdapter rvAdapter;
@@ -47,23 +50,43 @@ public class SearchActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ButterKnife.bind(this);
+
+        // Lookup the swipe container view
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Your code to refresh the list here.
+                // Make sure you call swipeContainer.setRefreshing(false)
+                // once the network request has completed successfully.
+                fetchTimelineAsync(0);
+            }
+        });
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
+
         articles = new ArrayList<Article>();
 
-        // Lookup the recyclerview in activity layout
+        // Lookup the recycler view in activity layout
         RecyclerView rvResults = (RecyclerView) findViewById(R.id.rvResults);
 
         // Initialize articles
         articles = new ArrayList<Article>();
         // Create adapter passing in the sample user data
         rvAdapter = new ArticlesAdapter(articles);
-        // Attach the adapter to the recyclerview to populate items
+        // Attach the adapter to the recycler view to populate items
         rvResults.setAdapter(rvAdapter);
 
 
         // First param is number of columns and second param is orientation i.e Vertical or Horizontal
         StaggeredGridLayoutManager gridLayoutManager =
                 new StaggeredGridLayoutManager(4, StaggeredGridLayoutManager.VERTICAL);
-// Attach the layout manager to the recycler view
+        // Attach the layout manager to the recycler view
         rvResults.setLayoutManager(gridLayoutManager);
 
         // Add the scroll listener
@@ -75,7 +98,6 @@ public class SearchActivity extends AppCompatActivity {
                 customLoadMoreDataFromApi(page);
             }
         });
-
 
 
         // adapter = new ArticleArrayAdapter(this, articles);
@@ -99,6 +121,55 @@ public class SearchActivity extends AppCompatActivity {
 
     }
 
+    public void fetchTimelineAsync(int page) {
+        // Send the network request to fetch the updated data
+        // `client` here is an instance of Android Async HTTP
+        String query = etQuery.getText().toString();
+        String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
+        RequestParams params = new RequestParams();
+        params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
+        params.put("page", page);
+        params.put("q", query);
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get(URL, params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+
+                Log.d("DEBUG", response.toString());
+                JSONArray articleJSONResults = null;
+
+                try {
+                    articleJSONResults = response.getJSONObject("response").getJSONArray("docs");
+                    // Remember to CLEAR OUT old items before appending in the new ones
+                    rvAdapter.clear();
+                    // record this value before making any changes to the existing list
+                    int curSize = rvAdapter.getItemCount();
+
+                    // Deserialize response then construct new objects to append to the adapter
+                    // Add the new objects to the data source for the adapter
+                    articles.addAll(Article.fromJSONArray(articleJSONResults));
+
+                    // For efficiency, notify the adapter of only the elements that got changed
+                    // curSize equal to index of the first element inserted b/c list is 0-indexed
+                    rvAdapter.notifyItemRangeInserted(curSize, articles.size() - 1);
+
+                    Log.d("DEBUG", articles.toString());
+                    // Now we call setRefreshing(false) to signal refresh has finished
+                    swipeContainer.setRefreshing(false);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable,
+                                  JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+            }
+        });
+    }
+
+
     // Append more data into the adapter
     // This method probably sends out a network request and appends new data items to your adapter.
     public void customLoadMoreDataFromApi(int offset) {
@@ -106,7 +177,6 @@ public class SearchActivity extends AppCompatActivity {
 
         String query = etQuery.getText().toString();
         // Toast.makeText(this, query, Toast.LENGTH_SHORT).show();
-
         String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
         RequestParams params = new RequestParams();
         params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
@@ -207,9 +277,6 @@ public class SearchActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-
-
             }
 
             @Override
