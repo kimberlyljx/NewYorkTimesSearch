@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -14,30 +14,41 @@
         <!--android:hint="@string/search"-->
         <!--android:imeOptions="actionDone" />-->
 
-    <CheckBox android:id="@+id/cbMagazine"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/magazine"
-        android:onClick="onCheckboxClicked"/>
-
     <CheckBox android:id="@+id/cbArtsAndLeisure"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/artsandleisure"
         android:onClick="onCheckboxClicked"/>
 
+    <CheckBox android:id="@+id/cbMagazine"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/magazine"
+        android:layout_below="@id/cbArtsAndLeisure"
+        android:onClick="onCheckboxClicked"/>
+
     <CheckBox android:id="@+id/cbMovies"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/movies"
+        android:layout_below="@id/cbMagazine"
         android:onClick="onCheckboxClicked"/>
 
     <Button
         style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
+        android:layout_width="75dp"
         android:layout_height="wrap_content"
-        android:text="New Button"
-        android:onClick="onDialogSubmit"
+        android:text="@string/save"
+        android:layout_below="@id/cbMovies"
         android:id="@+id/btnDialogSubmit" />
 
-</LinearLayout>
+    <Button
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:text="@string/cancel"
+        android:onClick="onCancel"
+        android:layout_below="@id/cbMovies"
+        android:layout_toRightOf="@id/btnDialogSubmit"
+        android:id="@+id/btnCancel" />
+
+</RelativeLayout>

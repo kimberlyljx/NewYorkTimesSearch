@@ -1,6 +1,7 @@
 package com.codepath.newyorktimesearch;
 
 import android.app.DatePickerDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -20,11 +21,13 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
     private CheckBox cbMovies;
     private CheckBox cbArtsAndLeisure;
     private CheckBox cbMagazine;
+
     private Button btnDialogSubmit;
+    private Button btnCancel;
+
     boolean originalArt;
     boolean originalMagazine;
     boolean originalMovie;
-
 
     // 1. Defines the listener interface with a method passing back data result.
     public interface EditSettingDialogListener {
@@ -32,6 +35,7 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
         // 3. This method is invoked in the activity when the listener is triggered
         // Access the data result passed to the activity here
         void onFinishEditDialog(boolean filterArt, boolean filterMagazine, boolean filterMovies);
+        void onFinishEditDialog(String cancel, boolean filterArt, boolean filterMagazine, boolean filterMovies);
     }
 
     public EditSettingDialogFragment() {
@@ -66,11 +70,10 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // Get field from view birng to oncreateview
+        // Get field from view bring to oncreateview
 
         // 2. Setup a callback when the "Done" button is pressed on keyboard
         //mEditText = (EditText) view.findViewById(R.id.etQuery);
-
         cbArtsAndLeisure = (CheckBox) view.findViewById(R.id.cbArtsAndLeisure);
         cbMagazine = (CheckBox) view.findViewById(R.id.cbMagazine);
         cbMovies = (CheckBox) view.findViewById(R.id.cbMovies);
@@ -80,7 +83,6 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
         cbMovies.setChecked(getArguments().getBoolean("movies"));
 
         btnDialogSubmit = (Button) view.findViewById(R.id.btnDialogSubmit);
-
         btnDialogSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,13 +90,25 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
                 // Return input text back to activity through the implemented listener
                 EditSettingDialogListener listener = (EditSettingDialogListener) getActivity();
                 // pass few things
-                listener.onFinishEditDialog(cbArtsAndLeisure.isChecked(), cbMagazine.isChecked(), cbMovies.isChecked() );
+                listener.onFinishEditDialog( cbArtsAndLeisure.isChecked(), cbMagazine.isChecked(), cbMovies.isChecked() );
                 // Close the dialog and return back to the parent activity
                 dismiss();
 
             }
         });
 
+        btnCancel = (Button) view.findViewById(R.id.btnCancel);
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Return input text back to activity through the implemented listener
+                EditSettingDialogListener listener = (EditSettingDialogListener) getActivity();
+                // When cancelled, keep original data
+                listener.onFinishEditDialog( "Cancel", originalArt, originalMagazine, originalMovie );
+                dismiss();
+
+            }
+        });
 
         // For editor lister
         // mEditText.setOnEditorActionListener(this);
@@ -108,6 +122,15 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
 //        getDialog().getWindow().setSoftInputMode(
 //                WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        // Return input text back to activity through the implemented listener
+        EditSettingDialogListener listener = (EditSettingDialogListener) getActivity();
+
+        // When cancelled, keep original data
+        listener.onFinishEditDialog( "Cancel", this.originalArt, this.originalMagazine, this.originalMovie );
     }
 
     // For editor lister

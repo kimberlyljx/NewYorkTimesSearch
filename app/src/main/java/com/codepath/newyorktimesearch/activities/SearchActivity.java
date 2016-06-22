@@ -380,13 +380,21 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
         editSettingDialogFragment.show(fm, "fragment_edit_setting");
     }
 
+
     // 3. This method is invoked in the activity when the listener is triggered
     // Access the data result passed to the activity here
     @Override
     public void onFinishEditDialog(boolean filterArt, boolean filterMagazine, boolean filterMovies) {
-
         Toast.makeText(this, "Searching for " + filterArt, Toast.LENGTH_SHORT).show();
     }
+    @Override
+
+    public void onFinishEditDialog(String cancel, boolean filterArt, boolean filterMagazine, boolean filterMovies) {
+        this.filterArts = filterArt;
+        this.filterMagazines = filterMagazine;
+        this.filterMovies = filterMovies;
+    }
+
 
     public void onCheckboxClicked(View view) {
         // Is the view now checked?
