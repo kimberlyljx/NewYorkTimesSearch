@@ -6,4 +6,11 @@
     <string name="text_view">Text View</string>
     <string name="title_activity_article">ArticleActivity</string>
     <string name="share">share</string>
+    <string name="query_name">Your name:</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="magazine">Magazine</string>
+    <string name="artsandleisure"><![CDATA[Arts & Leisure]]></string>
+    <string name="movies">Movies</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.codepath.newyorktimesearch.activities;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -12,10 +13,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.codepath.newyorktimesearch.Article;
 import com.codepath.newyorktimesearch.ArticlesAdapter;
+import com.codepath.newyorktimesearch.EditSettingDialogFragment;
 import com.codepath.newyorktimesearch.EndlessRecyclerViewScrollListener;
 import com.codepath.newyorktimesearch.R;
 import com.loopj.android.http.AsyncHttpClient;
@@ -31,17 +35,29 @@ import java.util.ArrayList;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends AppCompatActivity  implements EditSettingDialogFragment.EditSettingDialogListener {
 
     // @BindView(R.id.gvResults) GridView gvResults;
     MenuItem searchItem;
     private SwipeRefreshLayout swipeContainer;
     String query;
     ArrayList<Article> articles;
-    // ArticleArrayAdapter adapter;
     ArticlesAdapter rvAdapter;
     RecyclerView rvResults;
     StaggeredGridLayoutManager gridLayoutManager;
+
+    boolean noFilter;
+    boolean filterMovies;
+    boolean filterArts;
+    boolean filterMagazines;
+
+    public void checkForFilter() {
+        if (!(filterMagazines || filterArts || filterMovies)) {
+            noFilter = false;
+        } else {
+            noFilter = true;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,9 +85,7 @@ public class SearchActivity extends AppCompatActivity {
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                // Your code to refresh the list here.
-                // Make sure you call swipeContainer.setRefreshing(false)
-                // once the network request has completed successfully.
+                // code to refresh the list here.
                 fetchTimelineAsync(0);
             }
         });
@@ -97,26 +111,7 @@ public class SearchActivity extends AppCompatActivity {
                 customLoadMoreDataFromApi(page);
             }
         });
-
-        // adapter = new ArticleArrayAdapter(this, articles);
-        // gvResults.setAdapter(adapter);
-//        gvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                // Create an intent to display article
-//                Intent intent = new Intent(getApplicationContext(), ArticleActivity.class);
-//
-//                // get the article to display
-//                Article article = articles.get(position);
-//
-//                // pass in that article to intent
-//                intent.putExtra("article", article);
-//
-//                //launch the activity
-//                startActivity(intent);
-//            }
-//        });
-
+        displayTop();
     }
 
     public void fetchTimelineAsync(int page) {
@@ -126,6 +121,7 @@ public class SearchActivity extends AppCompatActivity {
         //String query = etQuery.getText().toString();
 //        String query = SearchManager.QUERY;
         Toast.makeText(this, query, Toast.LENGTH_SHORT).show();
+
         String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
         RequestParams params = new RequestParams();
         params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
@@ -190,7 +186,6 @@ public class SearchActivity extends AppCompatActivity {
 
                 try {
                     articleJSONResults = response.getJSONObject("response").getJSONArray("docs");
-                    // adapter.addAll(Article.fromJSONArray(articleJSONResults));
 
                     // record this value before making any changes to the existing list
                     int curSize = rvAdapter.getItemCount();
@@ -222,6 +217,54 @@ public class SearchActivity extends AppCompatActivity {
 //    public void onItemClick(AdapterView<?> parent, int position) {
 //
 //    }
+
+    public void displayTop() {
+        String URL = "https://api.nytimes.com/svc/topstories/v2/home.json";
+        RequestParams params = new RequestParams();
+        params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
+
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get(URL, params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Log.d("DEBUG", response.toString());
+                JSONArray articleJSONResults = null;
+
+                try {
+                    articleJSONResults = response.getJSONArray("results");
+                    // record this value before making any changes to the existing list
+                    int curSize = rvAdapter.getItemCount();
+                    // Deserialize response then construct new objects to append to the adapter
+                    // Add the new objects to the data source for the adapter
+                    articles.addAll(Article.fromJSONArray(articleJSONResults));
+                    // For efficiency, notify the adapter of only the elements that got changed
+                    // curSize equal to index of the first element inserted b/c list is 0-indexed
+                    rvAdapter.notifyItemRangeInserted(curSize, articles.size() - 1);
+
+                    Log.d("DEBUG", articles.toString()  );
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable,
+                                  JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+            }
+        });
+
+        // Read the scroll listener
+        rvResults.addOnScrollListener(new EndlessRecyclerViewScrollListener(gridLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to the bottom of the list
+                customLoadMoreDataFromApi(page);
+            }
+        });
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -277,7 +320,7 @@ public class SearchActivity extends AppCompatActivity {
                         }
                     });
 
-                    // Readd the scroll listener
+                    // Read the scroll listener
                     rvResults.addOnScrollListener(new EndlessRecyclerViewScrollListener(gridLayoutManager) {
                         @Override
                         public void onLoadMore(int page, int totalItemsCount) {
@@ -311,7 +354,8 @@ public class SearchActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            // return true;
+            showEditDialog();
         }
 //
 //        switch (id) {
@@ -326,4 +370,54 @@ public class SearchActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    // DIALOG
+    private void showEditDialog() {
+        FragmentManager fm = getSupportFragmentManager();
+
+        // way to persist data
+        EditSettingDialogFragment editSettingDialogFragment = EditSettingDialogFragment.newInstance(filterArts, filterMagazines, filterMovies);
+        editSettingDialogFragment.show(fm, "fragment_edit_setting");
+    }
+
+    // 3. This method is invoked in the activity when the listener is triggered
+    // Access the data result passed to the activity here
+    @Override
+    public void onFinishEditDialog(boolean filterArt, boolean filterMagazine, boolean filterMovies) {
+
+        Toast.makeText(this, "Searching for " + filterArt, Toast.LENGTH_SHORT).show();
+    }
+
+    public void onCheckboxClicked(View view) {
+        // Is the view now checked?
+        boolean checked = ((CheckBox) view).isChecked();
+
+        // Check which checkbox was clicked
+        switch(view.getId()) {
+            case R.id.cbMagazine:
+                if (checked) {
+                    Toast.makeText(this, "Filtering for Magazines", Toast.LENGTH_SHORT).show();
+                    filterMagazines = true;
+                } else {
+                    filterMagazines = false;
+                }
+                break;
+            case R.id.cbArtsAndLeisure:
+                if (checked) {
+                    filterArts = true;
+                    Toast.makeText(this, "Filtering for Arts", Toast.LENGTH_SHORT).show();
+                } else {
+                    filterArts = false;
+                }
+                break;
+            case R.id.cbMovies:
+                if (checked) {
+                    Toast.makeText(this, "Filtering for Movies", Toast.LENGTH_SHORT).show();
+                    filterMovies = true;
+                } else {
+                    filterMovies = false;
+                }
+        }
+    }
+
 }

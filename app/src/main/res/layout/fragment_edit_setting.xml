@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/etSettings"
+    android:layout_gravity="center">
+
+    <!--<EditText-->
+        <!--android:id="@+id/etQuery"-->
+        <!--android:layout_width="match_parent"  android:layout_height="wrap_content"-->
+        <!--android:inputType="text"-->
+        <!--android:hint="@string/search"-->
+        <!--android:imeOptions="actionDone" />-->
+
+    <CheckBox android:id="@+id/cbMagazine"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/magazine"
+        android:onClick="onCheckboxClicked"/>
+
+    <CheckBox android:id="@+id/cbArtsAndLeisure"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/artsandleisure"
+        android:onClick="onCheckboxClicked"/>
+
+    <CheckBox android:id="@+id/cbMovies"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/movies"
+        android:onClick="onCheckboxClicked"/>
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Button"
+        android:onClick="onDialogSubmit"
+        android:id="@+id/btnDialogSubmit" />
+
+</LinearLayout>
