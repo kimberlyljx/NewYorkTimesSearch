@@ -14,7 +14,25 @@
         <!--android:hint="@string/search"-->
         <!--android:imeOptions="actionDone" />-->
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Begin Date"
+        android:id="@+id/btnSetDate"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <Spinner
+        android:id="@+id/spinnerOrder"
+        android:layout_below="@id/btnSetDate"
+        android:layout_width="wrap_content"
+        android:entries="@array/orders_array"
+        android:prompt="@string/orders_prompt"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown" />
+
     <CheckBox android:id="@+id/cbArtsAndLeisure"
+        android:layout_below="@id/spinnerOrder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/artsandleisure"
@@ -48,7 +66,7 @@
         android:text="@string/cancel"
         android:onClick="onCancel"
         android:layout_below="@id/cbMovies"
-        android:layout_toRightOf="@id/btnDialogSubmit"
+        android:layout_alignParentRight="true"
         android:id="@+id/btnCancel" />
 
 </RelativeLayout>

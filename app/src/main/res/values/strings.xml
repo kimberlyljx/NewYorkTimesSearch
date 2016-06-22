@@ -14,5 +14,6 @@
     <string name="artsandleisure"><![CDATA[Art & Leisure]]></string>
     <string name="movies">Movies</string>
     <string name="save">Save</string>
+    <string name="orders_prompt">Order By</string>
     <string name="cancel">Cancel</string>
 </resources>

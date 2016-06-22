@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by klimjinx on 6/20/16.
@@ -82,7 +83,9 @@ public class Article implements Parcelable {
             JSONArray multimedia = object.getJSONArray("multimedia");
 
             if (multimedia.length() > 0) {
-                JSONObject multimediaJSON = multimedia.getJSONObject(1);
+                int rand = new Random().nextInt(multimedia.length());
+
+                JSONObject multimediaJSON = multimedia.getJSONObject(rand);
 
                 if ( multimediaJSON.getString("url").startsWith("http") ) {
                     this.thumbNail = multimediaJSON.getString("url");

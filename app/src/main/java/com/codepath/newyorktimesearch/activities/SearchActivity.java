@@ -50,7 +50,9 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
     boolean filterMovies;
     boolean filterArts;
     boolean filterMagazines;
+    int spinnerIndex; // 0 is newest, 1 is oldest
 
+    // Check for any filter applied
     public void checkForFilter() {
         if (!(filterMagazines || filterArts || filterMovies)) {
             noFilter = false;
@@ -376,7 +378,7 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
         FragmentManager fm = getSupportFragmentManager();
 
         // way to persist data
-        EditSettingDialogFragment editSettingDialogFragment = EditSettingDialogFragment.newInstance(filterArts, filterMagazines, filterMovies);
+        EditSettingDialogFragment editSettingDialogFragment = EditSettingDialogFragment.newInstance(spinnerIndex, filterArts, filterMagazines, filterMovies);
         editSettingDialogFragment.show(fm, "fragment_edit_setting");
     }
 
@@ -384,15 +386,74 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
     // 3. This method is invoked in the activity when the listener is triggered
     // Access the data result passed to the activity here
     @Override
-    public void onFinishEditDialog(boolean filterArt, boolean filterMagazine, boolean filterMovies) {
-        Toast.makeText(this, "Searching for " + filterArt, Toast.LENGTH_SHORT).show();
-    }
-    @Override
+    public void onFinishEditDialog(int spinnerIndex, boolean filterArt, boolean filterMagazine, boolean filterMovies) {
+        // Toast.makeText(this, "Searching for " + filterArt, Toast.LENGTH_SHORT).show();
 
-    public void onFinishEditDialog(String cancel, boolean filterArt, boolean filterMagazine, boolean filterMovies) {
+        String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
+        RequestParams params = new RequestParams();
+        params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
+        params.put("page", 0);
+        params.put("q", query); // query should be the same
+
+        String sort = "newest"; // by default
+        if (spinnerIndex == 1) {
+            sort = "oldest";
+        }
+
+        params.put("sort",sort); // query should be the same
+
+        // filter TO DO
+        if (filterMagazine) {
+            params.put("fq", "news_desk:(\"Magazine\")");
+        }
+
+        if (filterArt) {
+            // figure how to parse with multiple selections
+        }
+
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get(URL, params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                JSONArray articleJSONResults = null;
+
+                try {
+                    articleJSONResults = response.getJSONObject("response").getJSONArray("docs");
+                    // Remember to CLEAR OUT old items before appending in the new ones
+                    rvAdapter.clear();
+                    // record this value before making any changes to the existing list
+                    int curSize = rvAdapter.getItemCount();
+                    // Deserialize response then construct new objects to append to the adapter
+                    // Add the new objects to the data source for the adapter
+                    articles.addAll(Article.fromJSONArray(articleJSONResults));
+                    // For efficiency, notify the adapter of only the elements that got changed
+                    // curSize equal to index of the first element inserted b/c list is 0-indexed
+                    rvAdapter.notifyItemRangeInserted(curSize, articles.size() - 1);
+
+                    Log.d("DEBUG_DIALOG", articles.toString()  );
+
+                } catch (JSONException e) {
+                    Log.d("DEBUG_DIALOG", "FAILED"  );
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable,
+                                  JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+            }
+        });
+
+    }
+
+    // When dialog is cancelled, return to original settings
+    @Override
+    public void onFinishEditDialog(String cancel, int spinnerIndex, boolean filterArt, boolean filterMagazine, boolean filterMovies) {
         this.filterArts = filterArt;
         this.filterMagazines = filterMagazine;
         this.filterMovies = filterMovies;
+        this.spinnerIndex = spinnerIndex;
     }
 
 
