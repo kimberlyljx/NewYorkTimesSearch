@@ -46,20 +46,19 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
     RecyclerView rvResults;
     StaggeredGridLayoutManager gridLayoutManager;
 
-    boolean noFilter;
+    String beginDate = "";
+
     boolean filterMovies;
     boolean filterArts;
     boolean filterMagazines;
-    int spinnerIndex; // 0 is newest, 1 is oldest
+    int spinnerIndex; // 0 is none, 1 is newest, 2 is oldest
 
-    // Check for any filter applied
-    public void checkForFilter() {
-        if (!(filterMagazines || filterArts || filterMovies)) {
-            noFilter = false;
-        } else {
-            noFilter = true;
-        }
-    }
+//    // Give current date in "YYYY-MM-DD"
+//    public String giveCurrentDate() {
+//        final Calendar c = Calendar.getInstance();
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//        return sdf.format(c.getTime());
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,11 +116,6 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
     }
 
     public void fetchTimelineAsync(int page) {
-        // Send the network request to fetch the updated data
-        // `client` here is an instance of Android Async HTTP
-
-        //String query = etQuery.getText().toString();
-//        String query = SearchManager.QUERY;
         Toast.makeText(this, query, Toast.LENGTH_SHORT).show();
 
         String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
@@ -214,24 +208,16 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
         });
     }
 
-    // hook up Listener using ButterKnife for grid click
-//    @OnItemClick(R.id.gvResults)
-//    public void onItemClick(AdapterView<?> parent, int position) {
-//
-//    }
-
     public void displayTop() {
         String URL = "https://api.nytimes.com/svc/topstories/v2/home.json";
         RequestParams params = new RequestParams();
         params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
-
         AsyncHttpClient client = new AsyncHttpClient();
         client.get(URL, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d("DEBUG", response.toString());
                 JSONArray articleJSONResults = null;
-
                 try {
                     articleJSONResults = response.getJSONArray("results");
                     // record this value before making any changes to the existing list
@@ -242,14 +228,10 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
                     // For efficiency, notify the adapter of only the elements that got changed
                     // curSize equal to index of the first element inserted b/c list is 0-indexed
                     rvAdapter.notifyItemRangeInserted(curSize, articles.size() - 1);
-
-                    Log.d("DEBUG", articles.toString()  );
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable,
                                   JSONObject errorResponse) {
@@ -288,6 +270,19 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
                     params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
                     params.put("page", 0);
                     params.put("q", query);
+
+                    switch (spinnerIndex) {
+                        case 1:
+                            params.put("sort", "newest");
+                            break;
+                        case 2:
+                            params.put("sort", "oldest");
+                            break;
+                        default:
+                            break;
+                    }
+
+                    // params.put("begin_date", beginDate.replaceAll("-", ""));
 
                     AsyncHttpClient client = new AsyncHttpClient();
                     client.get(URL, params, new JsonHttpResponseHandler() {
@@ -378,7 +373,7 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
         FragmentManager fm = getSupportFragmentManager();
 
         // way to persist data
-        EditSettingDialogFragment editSettingDialogFragment = EditSettingDialogFragment.newInstance(spinnerIndex, filterArts, filterMagazines, filterMovies);
+        EditSettingDialogFragment editSettingDialogFragment = EditSettingDialogFragment.newInstance(spinnerIndex, filterArts, filterMagazines, filterMovies, beginDate);
         editSettingDialogFragment.show(fm, "fragment_edit_setting");
     }
 
@@ -386,7 +381,7 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
     // 3. This method is invoked in the activity when the listener is triggered
     // Access the data result passed to the activity here
     @Override
-    public void onFinishEditDialog(int spinnerIndex, boolean filterArt, boolean filterMagazine, boolean filterMovies) {
+    public void onFinishEditDialog(int spinnerIndex, boolean filterArt, boolean filterMagazine, boolean filterMovies, String beginDate) {
         // Toast.makeText(this, "Searching for " + filterArt, Toast.LENGTH_SHORT).show();
 
         String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
@@ -395,12 +390,15 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
         params.put("page", 0);
         params.put("q", query); // query should be the same
 
+        if (beginDate != "" ) {
+            params.put("begin_date", beginDate.replaceAll("-", ""));
+        }
+
         String sort = "newest"; // by default
         if (spinnerIndex == 1) {
             sort = "oldest";
         }
-
-        params.put("sort",sort); // query should be the same
+        params.put("sort", sort); // query should be the same
 
         // filter TO DO
         if (filterMagazine) {
@@ -430,10 +428,15 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
                     // curSize equal to index of the first element inserted b/c list is 0-indexed
                     rvAdapter.notifyItemRangeInserted(curSize, articles.size() - 1);
 
+                    if (rvAdapter.getItemCount() == 0) {
+                        Toast.makeText(getApplicationContext(), "Sorry, no matches. " +
+                                "Try setting less filters", Toast.LENGTH_LONG).show();
+                    }
+
                     Log.d("DEBUG_DIALOG", articles.toString()  );
 
                 } catch (JSONException e) {
-                    Log.d("DEBUG_DIALOG", "FAILED"  );
+                    Log.d("DEBUG_DIALOG", "FAILED");
                     e.printStackTrace();
                 }
             }
@@ -455,7 +458,6 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
         this.filterMovies = filterMovies;
         this.spinnerIndex = spinnerIndex;
     }
-
 
     public void onCheckboxClicked(View view) {
         // Is the view now checked?

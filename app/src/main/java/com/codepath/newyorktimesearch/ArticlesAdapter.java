@@ -10,8 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.codepath.newyorktimesearch.activities.ArticleActivity;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -101,7 +101,10 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         String thumbnail = article.getThumbNail();
 
         if (!TextUtils.isEmpty(thumbnail)) {
-            Picasso.with(viewHolder.ivImage.getContext()).load(thumbnail).into(imageView);
+            Glide.with(viewHolder.ivImage.getContext())
+                    .load(thumbnail)
+                    .into(imageView);
+            // Picasso.with(viewHolder.ivImage.getContext()).load(thumbnail).into(imageView);
         }
     }
 
