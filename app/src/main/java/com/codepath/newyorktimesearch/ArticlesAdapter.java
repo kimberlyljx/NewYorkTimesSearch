@@ -116,6 +116,10 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
                     .load(thumbnail)
                     .into(imageView);
             // Picasso.with(viewHolder.ivImage.getContext()).load(thumbnail).into(imageView);
+        } else {
+            Glide.with(viewHolder.ivImage.getContext())
+                    .load(R.mipmap.ic_news)
+                    .into(imageView);
         }
     }
 

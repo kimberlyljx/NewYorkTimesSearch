@@ -36,6 +36,7 @@ import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
+import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 
 public class SearchActivity extends AppCompatActivity  implements EditSettingDialogFragment.EditSettingDialogListener {
 
@@ -81,7 +82,7 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
 
         // Lookup the recycler view in activity layout
         rvResults = (RecyclerView) findViewById(R.id.rvResults);
-
+        rvResults.setItemAnimator(new SlideInUpAnimator());
         // Initialize articles
         articles = new ArrayList<Article>();
         // Create adapter passing in the sample user data
@@ -191,6 +192,11 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
     // Append more data into the adapter
     // This method probably sends out a network request and appends new data items to your adapter.
     public void customLoadMoreDataFromApi(int offset) {
+
+        if (query.contentEquals("")) {
+            displayTop(); // topnews does not accept page offset
+            return;
+        }
 
         // Send an API request to retrieve appropriate data using the offset value as a parameter.
         String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
