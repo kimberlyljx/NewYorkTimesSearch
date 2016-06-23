@@ -7,6 +7,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -65,6 +66,7 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
         frag.originalMovie = filterMovies;
         frag.originalSpinnerIndex = spinnerIndex;
 
+        //
         frag.originalDate = originalDate;
 
         args.putBoolean("arts", filterArt);
@@ -78,6 +80,8 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // remove titlebar on dialog
+        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         return inflater.inflate(R.layout.fragment_edit_setting, container);
 
     }

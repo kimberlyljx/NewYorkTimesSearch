@@ -20,44 +20,76 @@
         android:text="Begin Date"
         android:id="@+id/btnSetDate"
         android:layout_alignParentTop="true"
+        android:layout_marginBottom="20dp"
         android:layout_centerHorizontal="true" />
 
     <Spinner
         android:id="@+id/spinnerOrder"
-        android:layout_below="@id/btnSetDate"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:entries="@array/orders_array"
         android:prompt="@string/orders_prompt"
-        android:layout_height="wrap_content"
-        android:spinnerMode="dropdown" />
+        android:layout_height="50dp"
+        android:spinnerMode="dropdown"
+        android:layout_below="@+id/btnSetDate"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
-    <CheckBox android:id="@+id/cbArtsAndLeisure"
-        android:layout_below="@id/spinnerOrder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/artsandleisure"
-        android:onClick="onCheckboxClicked"/>
+    <RelativeLayout
+        android:id="@+id/llDialog"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="110dp"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/spinnerOrder"
+        android:layout_centerHorizontal="true">
 
-    <CheckBox android:id="@+id/cbMagazine"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/magazine"
-        android:layout_below="@id/cbArtsAndLeisure"
-        android:onClick="onCheckboxClicked"/>
+        <CheckBox android:id="@+id/cbArtsAndLeisure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/artsandleisure"
+            android:onClick="onCheckboxClicked"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
 
-    <CheckBox android:id="@+id/cbMovies"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/movies"
-        android:layout_below="@id/cbMagazine"
-        android:onClick="onCheckboxClicked"/>
+        <CheckBox android:id="@+id/cbMagazine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/magazine"
+            android:onClick="onCheckboxClicked"
+            android:layout_below="@+id/cbArtsAndLeisure"
+            android:layout_alignLeft="@+id/cbArtsAndLeisure"
+            android:layout_alignStart="@+id/cbArtsAndLeisure" />
+
+        <CheckBox android:id="@+id/cbMovies"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/movies"
+            android:onClick="onCheckboxClicked"
+            android:layout_below="@+id/cbMagazine"
+            android:layout_alignLeft="@+id/cbMagazine"
+            android:layout_alignStart="@+id/cbMagazine" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/news_desk_values"
+            android:id="@+id/tvDeskValues"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+    </RelativeLayout>
 
     <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="75dp"
         android:layout_height="wrap_content"
         android:text="@string/save"
-        android:layout_below="@id/cbMovies"
+        android:layout_below="@id/llDialog"
         android:id="@+id/btnDialogSubmit" />
 
     <Button
@@ -65,8 +97,21 @@
         android:layout_height="wrap_content"
         android:text="@string/cancel"
         android:onClick="onCancel"
-        android:layout_below="@id/cbMovies"
+        android:layout_below="@id/llDialog"
+        android:layout_marginRight="5dp"
+        android:layout_marginEnd="5dp"
         android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:id="@+id/btnCancel" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="@string/sort_order"
+        android:id="@+id/tvSortOrder"
+        android:layout_alignTop="@+id/spinnerOrder"
+        android:layout_toLeftOf="@+id/spinnerOrder"
+        android:layout_toStartOf="@+id/spinnerOrder" />
 
 </RelativeLayout>

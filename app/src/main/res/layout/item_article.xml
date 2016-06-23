@@ -3,24 +3,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:background="?android:attr/selectableItemBackground"
+    android:background="#FFFFFF"
     android:layout_height="wrap_content">
+
     <!--use wrap_content for the layout_height for RecyclerView-->
+
+    <!--android:layout_height="wrap_content"-->
 
     <ImageView
         tools:ignore="ContentDescription"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
         android:id="@+id/ivImage"
         android:src="@mipmap/ic_launcher"
-        android:scaleType="center"/>
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/tvTitle"
-        android:maxLines="2"
         android:ellipsize="end"
+        android:padding="8dp"
+        android:gravity="center"
         android:text="@string/text_view"/>
 
 </LinearLayout>

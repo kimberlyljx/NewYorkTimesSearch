@@ -84,7 +84,6 @@ public class Article implements Parcelable {
 
             if (multimedia.length() > 0) {
                 int rand = new Random().nextInt(multimedia.length());
-
                 JSONObject multimediaJSON = multimedia.getJSONObject(rand);
 
                 if ( multimediaJSON.getString("url").startsWith("http") ) {

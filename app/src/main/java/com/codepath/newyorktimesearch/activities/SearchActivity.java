@@ -22,6 +22,7 @@ import com.codepath.newyorktimesearch.ArticlesAdapter;
 import com.codepath.newyorktimesearch.EditSettingDialogFragment;
 import com.codepath.newyorktimesearch.EndlessRecyclerViewScrollListener;
 import com.codepath.newyorktimesearch.R;
+import com.codepath.newyorktimesearch.SpacesItemDecoration;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -62,6 +63,7 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -79,6 +81,9 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
         rvAdapter = new ArticlesAdapter(articles);
         // Attach the adapter to the recycler view to populate items
         rvResults.setAdapter(rvAdapter);
+
+        SpacesItemDecoration decoration = new SpacesItemDecoration(16);
+        rvResults.addItemDecoration(decoration);
 
         // Lookup the swipe container view
         swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
@@ -99,6 +104,10 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
         // First param is number of columns and second param is orientation i.e Vertical or Horizontal
         gridLayoutManager =
                 new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+
+        // set to None to prevent shuffling
+        gridLayoutManager.setGapStrategy(
+                StaggeredGridLayoutManager.GAP_HANDLING_NONE);
 
         // Attach the layout manager to the recycler view
         rvResults.setLayoutManager(gridLayoutManager);
@@ -166,12 +175,31 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
     // Append more data into the adapter
     // This method probably sends out a network request and appends new data items to your adapter.
     public void customLoadMoreDataFromApi(int offset) {
+
         // Send an API request to retrieve appropriate data using the offset value as a parameter.
         String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
         RequestParams params = new RequestParams();
         params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
         params.put("page", offset);
         params.put("q", query);
+
+
+        // filter TO DO
+        if (filterMagazines) {
+            params.put("fq", "news_desk:(\"Magazine\")");
+        }
+
+
+        switch (spinnerIndex) {
+            case 1:
+                params.put("sort", "newest");
+                break;
+            case 2:
+                params.put("sort", "oldest");
+                break;
+            default:
+                break;
+        }
 
         AsyncHttpClient client = new AsyncHttpClient();
         client.get(URL, params, new JsonHttpResponseHandler() {

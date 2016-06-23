@@ -16,4 +16,6 @@
     <string name="save">Save</string>
     <string name="orders_prompt">Order By</string>
     <string name="cancel">Cancel</string>
+    <string name="news_desk_values">Desk Values</string>
+    <string name="sort_order">Order By</string>
 </resources>

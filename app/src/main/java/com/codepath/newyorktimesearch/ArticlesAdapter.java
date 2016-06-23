@@ -39,6 +39,7 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         public TextView tvTitle;
         private Context context;
 
+
         // We also create a constructor that accepts the entire item row
         // and does the view lookups to find each subview
         public ViewHolder(Context context, View itemView) {
@@ -101,6 +102,15 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         String thumbnail = article.getThumbNail();
 
         if (!TextUtils.isEmpty(thumbnail)) {
+
+
+            // Image thumb = Picasso.load(thumbnail);
+
+            // Set the height ratio before loading in image into Picasso
+
+
+            // Load the image into the view using Picasso
+
             Glide.with(viewHolder.ivImage.getContext())
                     .load(thumbnail)
                     .into(imageView);
