@@ -114,7 +114,11 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
 
         btnSetDate = (Button) view.findViewById(R.id.btnSetDate);
 
-        btnSetDate.setText(original.beginDate);
+        if (original.beginDate.contentEquals("")) {
+            btnSetDate.setText("Begin Date");
+        } else {
+            btnSetDate.setText(original.beginDate);
+        }
 
         btnSetDate.setOnClickListener(new View.OnClickListener() {
             @Override

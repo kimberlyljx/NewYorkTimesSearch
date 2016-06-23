@@ -48,36 +48,16 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
     ArticlesAdapter rvAdapter;
     RecyclerView rvResults;
     StaggeredGridLayoutManager gridLayoutManager;
-
     Setting currentSettings;
-
-
-//    String beginDate = "";
-//    boolean filterMovies;
-//    boolean filterArts;
-//    boolean filterMagazines;
-//    int spinnerIndex; // 0 is none, 1 is newest, 2 is oldest
-
-
-
-//    // Give current date in "YYYY-MM-DD"
-//    public String giveCurrentDate() {
-//        final Calendar c = Calendar.getInstance();
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-//        return sdf.format(c.getTime());
-//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ButterKnife.bind(this);
-
         this.currentSettings = new Setting();
-
         articles = new ArrayList<Article>();
 
         // Lookup the recycler view in activity layout
@@ -148,6 +128,9 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
 
 
             AsyncHttpClient client = new AsyncHttpClient();
+
+            Log.d("SEARCH_ACTIVITY", URL + "?" + params);
+
             client.get(URL, params, new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -194,7 +177,7 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
     public void customLoadMoreDataFromApi(int offset) {
 
         if (query.contentEquals("")) {
-            displayTop(); // topnews does not accept page offset
+            // displayTop(); // topnews does not accept page offset
             return;
         }
 
@@ -215,6 +198,8 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
             default:
                 break;
         }
+
+        Log.d("SEARCH_ACTIVITY", URL + "?" + params);
 
         AsyncHttpClient client = new AsyncHttpClient();
         client.get(URL, params, new JsonHttpResponseHandler() {
@@ -256,6 +241,9 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
         params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
+
+        Log.d("SEARCH_ACTIVITY", URL + "?" + params);
+
         client.get(URL, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -282,16 +270,6 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
                 super.onFailure(statusCode, headers, throwable, errorResponse);
             }
         });
-
-        // Read the scroll listener
-        rvResults.addOnScrollListener(new EndlessRecyclerViewScrollListener(gridLayoutManager) {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount) {
-                // Triggered only when new data needs to be appended to the list
-                // Add whatever code is needed to append new items to the bottom of the list
-                customLoadMoreDataFromApi(page);
-            }
-        });
     }
 
     @Override
@@ -310,8 +288,12 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
                     Toast.makeText(getApplicationContext(), search_query, Toast.LENGTH_SHORT).show();
                     query = search_query;
                     String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
+
                     RequestParams params = giveParams(currentSettings);
+
                     AsyncHttpClient client = new AsyncHttpClient();
+
+                    Log.d("SEARCH_ACTIVITY", URL + "?" + params);
                     client.get(URL, params, new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -343,17 +325,6 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
                             super.onFailure(statusCode, headers, throwable, errorResponse);
                         }
                     });
-
-                    // Read the scroll listener
-                    rvResults.addOnScrollListener(new EndlessRecyclerViewScrollListener(gridLayoutManager) {
-                        @Override
-                        public void onLoadMore(int page, int totalItemsCount) {
-                            // Triggered only when new data needs to be appended to the list
-                            // Add whatever code is needed to append new items to the bottom of the list
-                            customLoadMoreDataFromApi(page);
-                        }
-                    });
-
                 }
                 // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
                 // see https://code.google.com/p/android/issues/detail?id=24599
@@ -395,12 +366,14 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
     }
 
     public RequestParams giveParams (Setting setting) {
-
         RequestParams params = new RequestParams();
         params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
-        params.put("page", 0);
-        params.put("q", query); // query should be the same
 
+        //
+        params.put("page", 0);
+
+
+        params.put("q", query); // query should be the same
         if (setting.beginDate != "" ) {
             params.put("begin_date",setting.beginDate.replaceAll("-", ""));
         }
@@ -467,6 +440,8 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
         String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
         RequestParams params = giveParams(currentSettings);
         AsyncHttpClient client = new AsyncHttpClient();
+        Log.d("SEARCH_ACTIVITY", URL + "?" + params);
+
         client.get(URL, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {

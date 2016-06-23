@@ -25,6 +25,7 @@
         android:id="@+id/tvTitle"
         android:ellipsize="end"
         android:padding="8dp"
+        android:maxLines="5"
         android:gravity="center"
         android:text="@string/text_view"/>
 
