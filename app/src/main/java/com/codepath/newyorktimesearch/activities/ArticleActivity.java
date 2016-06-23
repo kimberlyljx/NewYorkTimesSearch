@@ -12,7 +12,7 @@ import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.codepath.newyorktimesearch.Article;
+import com.codepath.newyorktimesearch.models.Article;
 import com.codepath.newyorktimesearch.R;
 
 import butterknife.BindView;

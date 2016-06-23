@@ -17,12 +17,13 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
-import com.codepath.newyorktimesearch.Article;
 import com.codepath.newyorktimesearch.ArticlesAdapter;
-import com.codepath.newyorktimesearch.EditSettingDialogFragment;
 import com.codepath.newyorktimesearch.EndlessRecyclerViewScrollListener;
 import com.codepath.newyorktimesearch.R;
 import com.codepath.newyorktimesearch.SpacesItemDecoration;
+import com.codepath.newyorktimesearch.fragments.EditSettingDialogFragment;
+import com.codepath.newyorktimesearch.models.Article;
+import com.codepath.newyorktimesearch.models.Setting;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -41,18 +42,22 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
     // @BindView(R.id.gvResults) GridView gvResults;
     MenuItem searchItem;
     private SwipeRefreshLayout swipeContainer;
-    String query;
+    String query = "";
     ArrayList<Article> articles;
     ArticlesAdapter rvAdapter;
     RecyclerView rvResults;
     StaggeredGridLayoutManager gridLayoutManager;
 
-    String beginDate = "";
+    Setting currentSettings;
 
-    boolean filterMovies;
-    boolean filterArts;
-    boolean filterMagazines;
-    int spinnerIndex; // 0 is none, 1 is newest, 2 is oldest
+
+//    String beginDate = "";
+//    boolean filterMovies;
+//    boolean filterArts;
+//    boolean filterMagazines;
+//    int spinnerIndex; // 0 is none, 1 is newest, 2 is oldest
+
+
 
 //    // Give current date in "YYYY-MM-DD"
 //    public String giveCurrentDate() {
@@ -69,6 +74,8 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ButterKnife.bind(this);
+
+        this.currentSettings = new Setting();
 
         articles = new ArrayList<Article>();
 
@@ -125,50 +132,59 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
     }
 
     public void fetchTimelineAsync(int page) {
-        Toast.makeText(this, query, Toast.LENGTH_SHORT).show();
 
-        String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
-        RequestParams params = new RequestParams();
-        params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
-        params.put("page", page);
-        params.put("q", query);
-        AsyncHttpClient client = new AsyncHttpClient();
-        client.get(URL, params, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+        if (query.contentEquals("")) {
+            displayTop();
+            swipeContainer.setRefreshing(false);
 
-                Log.d("DEBUG", response.toString());
-                JSONArray articleJSONResults = null;
+        } else {
+            Toast.makeText(this, query, Toast.LENGTH_SHORT).show();
+            String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
+            RequestParams params = new RequestParams();
+            params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
+            params.put("page", page);
+            params.put("q", query);
 
-                try {
-                    articleJSONResults = response.getJSONObject("response").getJSONArray("docs");
-                    // Remember to CLEAR OUT old items before appending in the new ones
-                    rvAdapter.clear();
-                    // record this value before making any changes to the existing list
-                    int curSize = rvAdapter.getItemCount();
 
-                    // Deserialize response then construct new objects to append to the adapter
-                    // Add the new objects to the data source for the adapter
-                    articles.addAll(Article.fromJSONArray(articleJSONResults));
+            AsyncHttpClient client = new AsyncHttpClient();
+            client.get(URL, params, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
 
-                    // For efficiency, notify the adapter of only the elements that got changed
-                    // curSize equal to index of the first element inserted b/c list is 0-indexed
-                    rvAdapter.notifyItemRangeInserted(curSize, articles.size() - 1);
+                    Log.d("DEBUG", response.toString());
+                    JSONArray articleJSONResults = null;
 
-                    Log.d("DEBUG", articles.toString());
-                    // Now we call setRefreshing(false) to signal refresh has finished
-                    swipeContainer.setRefreshing(false);
+                    try {
+                        articleJSONResults = response.getJSONObject("response").getJSONArray("docs");
+                        // Remember to CLEAR OUT old items before appending in the new ones
+                        rvAdapter.clear();
+                        // record this value before making any changes to the existing list
+                        int curSize = rvAdapter.getItemCount();
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                        // Deserialize response then construct new objects to append to the adapter
+                        // Add the new objects to the data source for the adapter
+                        articles.addAll(Article.fromJSONArray(articleJSONResults));
+
+                        // For efficiency, notify the adapter of only the elements that got changed
+                        // curSize equal to index of the first element inserted b/c list is 0-indexed
+                        rvAdapter.notifyItemRangeInserted(curSize, articles.size() - 1);
+
+                        Log.d("DEBUG", articles.toString());
+                        // Now we call setRefreshing(false) to signal refresh has finished
+                        swipeContainer.setRefreshing(false);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable,
-                                  JSONObject errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
-            }
-        });
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable,
+                                      JSONObject errorResponse) {
+                    super.onFailure(statusCode, headers, throwable, errorResponse);
+                }
+            });
+        }
     }
 
 
@@ -183,14 +199,7 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
         params.put("page", offset);
         params.put("q", query);
 
-
-        // filter TO DO
-        if (filterMagazines) {
-            params.put("fq", "news_desk:(\"Magazine\")");
-        }
-
-
-        switch (spinnerIndex) {
+        switch (currentSettings.spinnerIndex) {
             case 1:
                 params.put("sort", "newest");
                 break;
@@ -238,16 +247,16 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
 
     public void displayTop() {
         String URL = "https://api.nytimes.com/svc/topstories/v2/home.json";
+        AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
         params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
-        AsyncHttpClient client = new AsyncHttpClient();
         client.get(URL, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.d("DEBUG", response.toString());
                 JSONArray articleJSONResults = null;
                 try {
                     articleJSONResults = response.getJSONArray("results");
+                    rvAdapter.clear();
                     // record this value before making any changes to the existing list
                     int curSize = rvAdapter.getItemCount();
                     // Deserialize response then construct new objects to append to the adapter
@@ -263,6 +272,7 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable,
                                   JSONObject errorResponse) {
+                rvAdapter.clear();
                 super.onFailure(statusCode, headers, throwable, errorResponse);
             }
         });
@@ -294,24 +304,7 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
                     Toast.makeText(getApplicationContext(), search_query, Toast.LENGTH_SHORT).show();
                     query = search_query;
                     String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
-                    RequestParams params = new RequestParams();
-                    params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
-                    params.put("page", 0);
-                    params.put("q", query);
-
-                    switch (spinnerIndex) {
-                        case 1:
-                            params.put("sort", "newest");
-                            break;
-                        case 2:
-                            params.put("sort", "oldest");
-                            break;
-                        default:
-                            break;
-                    }
-
-                    // params.put("begin_date", beginDate.replaceAll("-", ""));
-
+                    RequestParams params = giveParams(currentSettings);
                     AsyncHttpClient client = new AsyncHttpClient();
                     client.get(URL, params, new JsonHttpResponseHandler() {
                         @Override
@@ -382,17 +375,6 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
             // return true;
             showEditDialog();
         }
-//
-//        switch (id) {
-//            case android.R.id.home:
-//                break;
-//            case R.id.menuitem1:
-//                Toast.makeText(this, "Menu Item 1", Toast.LENGTH_SHORT).show();
-//                break;
-//            default:
-//                break;
-//        }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -401,42 +383,83 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
         FragmentManager fm = getSupportFragmentManager();
 
         // way to persist data
-        EditSettingDialogFragment editSettingDialogFragment = EditSettingDialogFragment.newInstance(spinnerIndex, filterArts, filterMagazines, filterMovies, beginDate);
+        EditSettingDialogFragment editSettingDialogFragment = EditSettingDialogFragment.newInstance(currentSettings);
+//                currentSettings.spinnerIndex, filterArts, filterMagazines, filterMovies, beginDate);
         editSettingDialogFragment.show(fm, "fragment_edit_setting");
     }
 
+    public RequestParams giveParams (Setting setting) {
 
-    // 3. This method is invoked in the activity when the listener is triggered
-    // Access the data result passed to the activity here
-    @Override
-    public void onFinishEditDialog(int spinnerIndex, boolean filterArt, boolean filterMagazine, boolean filterMovies, String beginDate) {
-        // Toast.makeText(this, "Searching for " + filterArt, Toast.LENGTH_SHORT).show();
-
-        String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
         RequestParams params = new RequestParams();
         params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
         params.put("page", 0);
         params.put("q", query); // query should be the same
 
-        if (beginDate != "" ) {
-            params.put("begin_date", beginDate.replaceAll("-", ""));
+        if (setting.beginDate != "" ) {
+            params.put("begin_date",setting.beginDate.replaceAll("-", ""));
         }
 
-        String sort = "newest"; // by default
-        if (spinnerIndex == 1) {
-            sort = "oldest";
+        switch (setting.spinnerIndex) {
+            case 1:
+                params.put("sort", "newest");
+                break;
+            case 2:
+                params.put("sort", "oldest");
+                break;
+            default:
+                break;
         }
-        params.put("sort", sort); // query should be the same
 
         // filter TO DO
-        if (filterMagazine) {
-            params.put("fq", "news_desk:(\"Magazine\")");
+        // I hate myself for this ugly nested if else
+        if (currentSettings.filterMagazines) {
+            if (currentSettings.filterArts) {
+                if (currentSettings.filterMovies) {
+                    params.put("fq", "news_desk:(\"Magazine\" \"Arts&Leisure\" \"Movies\")");
+                } else {
+                    params.put("fq", "news_desk:(\"Magazine\" \"Arts&Leisure\")");
+                }
+
+            } else {
+                if (currentSettings.filterMovies) {
+                    params.put("fq", "news_desk:(\"Magazine\" \"Movies\")");
+                } else {
+                    params.put("fq", "news_desk:(\"Magazine\")");
+                }
+            }
+        } else {
+            if (currentSettings.filterArts) {
+                if (currentSettings.filterMovies) {
+                    params.put("fq", "news_desk:(\"Arts&Leisure\" \"Movies\")");
+                } else {
+                    params.put("fq", "news_desk:(\"Arts&Leisure\")");
+                }
+
+            } else {
+                if (currentSettings.filterMovies) {
+                    params.put("fq", "news_desk:(\"Movies\")");
+                }
+            }
+        }
+        return params;
+    }
+
+    // 3. This method is invoked in the activity when the listener is triggered
+    // Access the data result passed to the activity here
+    @Override
+    public void onFinishEditDialog(Setting newSettings) {
+        // Toast.makeText(this, "Searching for " + filterArt, Toast.LENGTH_SHORT).show();
+
+        // CHeck whether top stories
+        currentSettings = newSettings;
+
+        if (query.contentEquals("") ) {
+            displayTop();
+            return;
         }
 
-        if (filterArt) {
-            // figure how to parse with multiple selections
-        }
-
+        String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
+        RequestParams params = giveParams(currentSettings);
         AsyncHttpClient client = new AsyncHttpClient();
         client.get(URL, params, new JsonHttpResponseHandler() {
             @Override
@@ -480,11 +503,8 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
 
     // When dialog is cancelled, return to original settings
     @Override
-    public void onFinishEditDialog(String cancel, int spinnerIndex, boolean filterArt, boolean filterMagazine, boolean filterMovies) {
-        this.filterArts = filterArt;
-        this.filterMagazines = filterMagazine;
-        this.filterMovies = filterMovies;
-        this.spinnerIndex = spinnerIndex;
+    public void onFinishEditDialog(String cancel, Setting oldSetting) {
+        currentSettings = oldSetting;
     }
 
     public void onCheckboxClicked(View view) {
@@ -496,25 +516,16 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
             case R.id.cbMagazine:
                 if (checked) {
                     Toast.makeText(this, "Filtering for Magazines", Toast.LENGTH_SHORT).show();
-                    filterMagazines = true;
-                } else {
-                    filterMagazines = false;
                 }
                 break;
             case R.id.cbArtsAndLeisure:
                 if (checked) {
-                    filterArts = true;
                     Toast.makeText(this, "Filtering for Arts", Toast.LENGTH_SHORT).show();
-                } else {
-                    filterArts = false;
                 }
                 break;
             case R.id.cbMovies:
                 if (checked) {
                     Toast.makeText(this, "Filtering for Movies", Toast.LENGTH_SHORT).show();
-                    filterMovies = true;
-                } else {
-                    filterMovies = false;
                 }
         }
     }

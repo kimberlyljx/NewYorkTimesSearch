@@ -1,4 +1,4 @@
-package com.codepath.newyorktimesearch;
+package com.codepath.newyorktimesearch.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
