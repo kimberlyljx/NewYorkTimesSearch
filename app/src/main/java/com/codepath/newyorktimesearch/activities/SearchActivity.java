@@ -49,6 +49,8 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
     RecyclerView rvResults;
     StaggeredGridLayoutManager gridLayoutManager;
     Setting currentSettings;
+    String searchURL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
+    String topURL = "https://api.nytimes.com/svc/topstories/v2/home.json";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +82,7 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
             @Override
             public void onRefresh() {
                 // code to refresh the list here.
-                fetchTimelineAsync(0);
+                fetchTimelineAsync(0); // always refresh from page 0
             }
         });
         // Configure the refreshing colors
@@ -106,122 +108,44 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
             public void onLoadMore(int page, int totalItemsCount) {
                 // Triggered only when new data needs to be appended to the list
                 // Add whatever code is needed to append new items to the bottom of the list
-                customLoadMoreDataFromApi(page);
+                customLoadMoreDataFromApi(false, page);
             }
         });
         displayTop();
     }
 
-    public void fetchTimelineAsync(int page) {
-
-        if (query.contentEquals("")) {
-            displayTop();
-            swipeContainer.setRefreshing(false);
-
-        } else {
-            Toast.makeText(this, query, Toast.LENGTH_SHORT).show();
-            String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
-            RequestParams params = new RequestParams();
-            params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
-            params.put("page", page);
-            params.put("q", query);
-
-
-            AsyncHttpClient client = new AsyncHttpClient();
-
-            Log.d("SEARCH_ACTIVITY", URL + "?" + params);
-
-            client.get(URL, params, new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-
-                    Log.d("DEBUG", response.toString());
-                    JSONArray articleJSONResults = null;
-
-                    try {
-                        articleJSONResults = response.getJSONObject("response").getJSONArray("docs");
-                        // Remember to CLEAR OUT old items before appending in the new ones
-                        rvAdapter.clear();
-                        // record this value before making any changes to the existing list
-                        int curSize = rvAdapter.getItemCount();
-
-                        // Deserialize response then construct new objects to append to the adapter
-                        // Add the new objects to the data source for the adapter
-                        articles.addAll(Article.fromJSONArray(articleJSONResults));
-
-                        // For efficiency, notify the adapter of only the elements that got changed
-                        // curSize equal to index of the first element inserted b/c list is 0-indexed
-                        rvAdapter.notifyItemRangeInserted(curSize, articles.size() - 1);
-
-                        Log.d("DEBUG", articles.toString());
-                        // Now we call setRefreshing(false) to signal refresh has finished
-                        swipeContainer.setRefreshing(false);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, Throwable throwable,
-                                      JSONObject errorResponse) {
-                    super.onFailure(statusCode, headers, throwable, errorResponse);
-                }
-            });
-        }
-    }
-
-
-    // Append more data into the adapter
-    // This method probably sends out a network request and appends new data items to your adapter.
-    public void customLoadMoreDataFromApi(int offset) {
-
-        if (query.contentEquals("")) {
-            // displayTop(); // topnews does not accept page offset
-            return;
-        }
-
-        // Send an API request to retrieve appropriate data using the offset value as a parameter.
-        String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
-        RequestParams params = new RequestParams();
-        params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
-        params.put("page", offset);
-        params.put("q", query);
-
-        switch (currentSettings.spinnerIndex) {
-            case 1:
-                params.put("sort", "newest");
-                break;
-            case 2:
-                params.put("sort", "oldest");
-                break;
-            default:
-                break;
-        }
-
-        Log.d("SEARCH_ACTIVITY", URL + "?" + params);
-
+    public void apiCall(final boolean clearAdapter, final boolean refreshing, String URL, RequestParams params) {
         AsyncHttpClient client = new AsyncHttpClient();
+        Log.d("SEARCH_ACTIVITY", URL + "?" + params);
         client.get(URL, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.d("DEBUG", response.toString());
                 JSONArray articleJSONResults = null;
-
                 try {
                     articleJSONResults = response.getJSONObject("response").getJSONArray("docs");
 
+                    if (clearAdapter) {
+                        rvAdapter.clear();
+                    }
+
                     // record this value before making any changes to the existing list
                     int curSize = rvAdapter.getItemCount();
-
                     // Deserialize response then construct new objects to append to the adapter
                     // Add the new objects to the data source for the adapter
                     articles.addAll(Article.fromJSONArray(articleJSONResults));
-
                     // For efficiency, notify the adapter of only the elements that got changed
                     // curSize equal to index of the first element inserted b/c list is 0-indexed
                     rvAdapter.notifyItemRangeInserted(curSize, articles.size() - 1);
+
+                    if (rvAdapter.getItemCount() == 0) {
+                        Toast.makeText(getApplicationContext(), "Sorry, no matches. " +
+                                "Try setting less filters", Toast.LENGTH_LONG).show();
+                    }
                     Log.d("DEBUG", articles.toString());
+                    if (refreshing) {
+                        // Now we call setRefreshing(false) to signal refresh has finished
+                        swipeContainer.setRefreshing(false);
+                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -236,28 +160,45 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
         });
     }
 
+    public void fetchTimelineAsync(int page) {
+        if (query.contentEquals("")) {
+            displayTop();
+            swipeContainer.setRefreshing(false);
+        } else {
+            Toast.makeText(this, query, Toast.LENGTH_SHORT).show();
+            RequestParams params = giveParams(currentSettings, page);
+            apiCall(true, true, searchURL, params);
+        }
+    }
+
+
+    // Append more data into the adapter
+    // This method probably sends out a network request and appends new data items to your adapter.
+    public void customLoadMoreDataFromApi(boolean clearAdapter, int offset) {
+
+        if (query.contentEquals("")) {
+            // displayTop(); // topnews does not accept page offset
+            return;
+        }
+        // Send an API request to retrieve appropriate data using the offset value as a parameter.
+        RequestParams params = giveParams(currentSettings, offset);
+        apiCall(clearAdapter, false, searchURL, params);
+    }
+
     public void displayTop() {
-        String URL = "https://api.nytimes.com/svc/topstories/v2/home.json";
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
         params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
-
-        Log.d("SEARCH_ACTIVITY", URL + "?" + params);
-
-        client.get(URL, params, new JsonHttpResponseHandler() {
+        Log.d("SEARCH_ACTIVITY", topURL + "?" + params);
+        client.get(topURL, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 JSONArray articleJSONResults = null;
                 try {
                     articleJSONResults = response.getJSONArray("results");
                     rvAdapter.clear();
-                    // record this value before making any changes to the existing list
                     int curSize = rvAdapter.getItemCount();
-                    // Deserialize response then construct new objects to append to the adapter
-                    // Add the new objects to the data source for the adapter
                     articles.addAll(Article.fromJSONArray(articleJSONResults));
-                    // For efficiency, notify the adapter of only the elements that got changed
-                    // curSize equal to index of the first element inserted b/c list is 0-indexed
                     rvAdapter.notifyItemRangeInserted(curSize, articles.size() - 1);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -287,51 +228,14 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
                 if (!search_query.equalsIgnoreCase(query)) {
                     Toast.makeText(getApplicationContext(), search_query, Toast.LENGTH_SHORT).show();
                     query = search_query;
-                    String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
-
-                    RequestParams params = giveParams(currentSettings);
-
-                    AsyncHttpClient client = new AsyncHttpClient();
-
-                    Log.d("SEARCH_ACTIVITY", URL + "?" + params);
-                    client.get(URL, params, new JsonHttpResponseHandler() {
-                        @Override
-                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                            Log.d("DEBUG", response.toString());
-                            JSONArray articleJSONResults = null;
-
-                            try {
-                                articleJSONResults = response.getJSONObject("response").getJSONArray("docs");
-                                // Remember to CLEAR OUT old items before appending in the new ones
-                                rvAdapter.clear();
-                                // record this value before making any changes to the existing list
-                                int curSize = rvAdapter.getItemCount();
-                                // Deserialize response then construct new objects to append to the adapter
-                                // Add the new objects to the data source for the adapter
-                                articles.addAll(Article.fromJSONArray(articleJSONResults));
-                                // For efficiency, notify the adapter of only the elements that got changed
-                                // curSize equal to index of the first element inserted b/c list is 0-indexed
-                                rvAdapter.notifyItemRangeInserted(curSize, articles.size() - 1);
-
-                                // Log.d("DEBUG", articles.toString());
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, Throwable throwable,
-                                              JSONObject errorResponse) {
-                            super.onFailure(statusCode, headers, throwable, errorResponse);
-                        }
-                    });
+                    RequestParams params = giveParams(currentSettings, 0);
+                    apiCall(true, false, searchURL, params);
                 }
                 // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
                 // see https://code.google.com/p/android/issues/detail?id=24599
                 searchView.clearFocus();
                 return true;
             }
-
             @Override
             public boolean onQueryTextChange(String newText) {
                 return false;
@@ -358,26 +262,22 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
     // DIALOG
     private void showEditDialog() {
         FragmentManager fm = getSupportFragmentManager();
-
         // way to persist data
         EditSettingDialogFragment editSettingDialogFragment = EditSettingDialogFragment.newInstance(currentSettings);
 //                currentSettings.spinnerIndex, filterArts, filterMagazines, filterMovies, beginDate);
         editSettingDialogFragment.show(fm, "fragment_edit_setting");
     }
 
-    public RequestParams giveParams (Setting setting) {
+    public RequestParams giveParams (Setting setting, int page) {
         RequestParams params = new RequestParams();
         params.put("api-key", "18d9a8651d754a6883f1b4c72b55da4c");
+        params.put("page", page);
+        params.put("q", query);
 
-        //
-        params.put("page", 0);
-
-
-        params.put("q", query); // query should be the same
+        // Set Date
         if (setting.beginDate != "" ) {
             params.put("begin_date",setting.beginDate.replaceAll("-", ""));
         }
-
         switch (setting.spinnerIndex) {
             case 1:
                 params.put("sort", "newest");
@@ -389,8 +289,7 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
                 break;
         }
 
-        // filter TO DO
-        // I hate myself for this ugly nested if else
+        // Filter to do: I hate myself for this ugly nested if else
         if (currentSettings.filterMagazines) {
             if (currentSettings.filterArts) {
                 if (currentSettings.filterMovies) {
@@ -427,59 +326,14 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
     // Access the data result passed to the activity here
     @Override
     public void onFinishEditDialog(Setting newSettings) {
-        // Toast.makeText(this, "Searching for " + filterArt, Toast.LENGTH_SHORT).show();
-
-        // CHeck whether top stories
+        // Check whether top stories
         currentSettings = newSettings;
-
         if (query.contentEquals("") ) {
             displayTop();
             return;
         }
-
-        String URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
-        RequestParams params = giveParams(currentSettings);
-        AsyncHttpClient client = new AsyncHttpClient();
-        Log.d("SEARCH_ACTIVITY", URL + "?" + params);
-
-        client.get(URL, params, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                JSONArray articleJSONResults = null;
-
-                try {
-                    articleJSONResults = response.getJSONObject("response").getJSONArray("docs");
-                    // Remember to CLEAR OUT old items before appending in the new ones
-                    rvAdapter.clear();
-                    // record this value before making any changes to the existing list
-                    int curSize = rvAdapter.getItemCount();
-                    // Deserialize response then construct new objects to append to the adapter
-                    // Add the new objects to the data source for the adapter
-                    articles.addAll(Article.fromJSONArray(articleJSONResults));
-                    // For efficiency, notify the adapter of only the elements that got changed
-                    // curSize equal to index of the first element inserted b/c list is 0-indexed
-                    rvAdapter.notifyItemRangeInserted(curSize, articles.size() - 1);
-
-                    if (rvAdapter.getItemCount() == 0) {
-                        Toast.makeText(getApplicationContext(), "Sorry, no matches. " +
-                                "Try setting less filters", Toast.LENGTH_LONG).show();
-                    }
-
-                    Log.d("DEBUG_DIALOG", articles.toString()  );
-
-                } catch (JSONException e) {
-                    Log.d("DEBUG_DIALOG", "FAILED");
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable,
-                                  JSONObject errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
-            }
-        });
-
+        RequestParams params = giveParams(currentSettings, 0);
+        apiCall(true, false, searchURL, params);
     }
 
     // When dialog is cancelled, return to original settings
