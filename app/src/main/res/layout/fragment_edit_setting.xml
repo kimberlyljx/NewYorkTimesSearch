@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/etSettings"
+    android:paddingBottom="15dp"
+    android:paddingTop="15dp"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:layout_gravity="center">
+
+    <!--<EditText-->
+        <!--android:id="@+id/etQuery"-->
+        <!--android:layout_width="match_parent"  android:layout_height="wrap_content"-->
+        <!--android:inputType="text"-->
+        <!--android:hint="@string/search"-->
+        <!--android:imeOptions="actionDone" />-->
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/begin_date"
+        android:id="@+id/btnSetDate"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="15dp"
+        android:layout_centerHorizontal="true" />
+
+    <RelativeLayout
+        android:id="@+id/llDialog"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:paddingBottom="10dp"
+        android:layout_below="@+id/btnSetDate"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
+
+        <Spinner
+            android:id="@+id/spinnerOrder"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:paddingBottom="15dp"
+            android:entries="@array/orders_array"
+            android:prompt="@string/orders_prompt"
+            android:spinnerMode="dropdown"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+        <CheckBox android:id="@+id/cbArtsAndLeisure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/artsandleisure"
+            android:onClick="onCheckboxClicked"
+            android:layout_below="@id/spinnerOrder"
+            android:layout_alignLeft="@id/spinnerOrder" />
+
+        <CheckBox android:id="@+id/cbMagazine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/magazine"
+            android:onClick="onCheckboxClicked"
+            android:layout_below="@+id/cbArtsAndLeisure"
+            android:layout_alignLeft="@+id/cbArtsAndLeisure"
+            android:layout_alignStart="@+id/cbArtsAndLeisure" />
+
+        <CheckBox android:id="@+id/cbMovies"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/movies"
+            android:onClick="onCheckboxClicked"
+            android:layout_below="@+id/cbMagazine"
+            android:layout_alignLeft="@+id/cbMagazine"
+            android:layout_alignStart="@+id/cbMagazine" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sort_order"
+            android:id="@+id/tvSortOrder"
+            android:layout_alignParentLeft="true"
+            android:paddingTop="5dp"
+            android:layout_toStartOf="@id/spinnerOrder"
+            android:layout_toLeftOf="@id/spinnerOrder">
+        </TextView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/news_desk_values"
+            android:id="@+id/tvCheckBox"
+            android:layout_alignParentLeft="true"
+            android:paddingTop="5dp"
+            android:layout_alignTop="@id/cbArtsAndLeisure">
+        </TextView>
+
+    </RelativeLayout>
+
+    <Button
+        android:background="@color/grey"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onCancel"
+        android:id="@+id/btnCancel"
+        android:text="@string/cancel"
+        android:layout_below="@id/llDialog" />
+
+    <Button
+        android:background="@color/colorAccent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/save"
+        android:layout_below="@+id/llDialog"
+        android:id="@+id/btnDialogSubmit"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+</RelativeLayout>

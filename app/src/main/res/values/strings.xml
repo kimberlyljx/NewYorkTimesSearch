@@ -6,4 +6,15 @@
     <string name="text_view">Text View</string>
     <string name="title_activity_article">ArticleActivity</string>
     <string name="share">share</string>
+    <string name="query_name">Your name:</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="magazine">Magazine</string>
+    <string name="artsandleisure"><![CDATA[Art & Leisure]]></string>
+    <string name="movies">Movies</string>
+    <string name="save">Save</string>
+    <string name="orders_prompt">Order By</string>
+    <string name="cancel">Cancel</string>
+    <string name="news_desk_values">Desk Values</string>
+    <string name="sort_order">Order By</string>
+    <string name="begin_date">Set Begin Date</string>
 </resources>
