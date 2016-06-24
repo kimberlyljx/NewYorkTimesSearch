@@ -6,19 +6,6 @@
     android:background="@drawable/grid_item_corner"
     android:layout_height="wrap_content">
 
-
-    <!--use wrap_content for the layout_height for RecyclerView-->
-    <!--<ImageView-->
-        <!--tools:ignore="ContentDescription"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:minHeight="220dp"-->
-        <!--android:id="@+id/ivImage"-->
-        <!--android:src="@mipmap/ic_launcher"-->
-        <!--android:adjustViewBounds="true"-->
-        <!--android:visibility="visible"-->
-        <!--android:scaleType="centerCrop" />-->
-
     <com.joooonho.SelectableRoundedImageView
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/rounded"
@@ -26,7 +13,7 @@
         android:layout_height="wrap_content"
         android:src="@drawable/ic_filter"
         android:scaleType="centerCrop"
-        android:minHeight="220dp"
+        android:minHeight="230dp"
         app:sriv_left_top_corner_radius="10dip"
         app:sriv_right_top_corner_radius="10dip"
         app:sriv_left_bottom_corner_radius="0dip"

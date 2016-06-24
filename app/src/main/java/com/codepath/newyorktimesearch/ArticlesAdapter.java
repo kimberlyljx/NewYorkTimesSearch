@@ -43,6 +43,8 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         private Context context;
         // @BindView(R.id.ivImage) ImageView ivImage;
         @BindView(R.id.tvTitle) TextView tvTitle;
+        @BindView(R.id.rounded) SelectableRoundedImageView image;
+
 
         // We also create a constructor that accepts the entire item row
         // and does the view lookups to find each subview
@@ -50,7 +52,6 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
             // Stores the itemView in a public final member variable that can be used
             // to access the context from any ViewHolder instance.
             super(itemView);
-
             ButterKnife.bind(this, itemView);
             this.context = context; // Store the context for itemClick
             // Attach a click listener to the entire row view
@@ -102,20 +103,15 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         // populate the thumbnail image & remote download image in the background
         String thumbnail = article.getThumbNail();
 
-//        imageView.setVisibility(View.GONE);
-
-        SelectableRoundedImageView image = (SelectableRoundedImageView) viewHolder.itemView.findViewById(R.id.rounded);
+        // Used this for top corner rounding only
+        SelectableRoundedImageView image = viewHolder.image;
         image.setImageResource(0);
-
 
         if (!TextUtils.isEmpty(thumbnail)) {
             // Set the height ratio before loading in image into Picasso
-
             Glide.with(image.getContext())
                     .load(thumbnail)
                     .into(image);
-
-
         } else {
             Glide.with(image.getContext())
                     .load(R.mipmap.ic_news)

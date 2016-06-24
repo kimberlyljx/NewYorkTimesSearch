@@ -1,5 +1,6 @@
 package com.codepath.newyorktimesearch.activities;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
@@ -94,9 +95,13 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
                 android.R.color.holo_red_light);
 
         // First param is number of columns and second param is orientation i.e Vertical or Horizontal
-        gridLayoutManager =
-            new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-
+        if (getResources().getConfiguration().orientation == (Configuration.ORIENTATION_PORTRAIT)) {
+            gridLayoutManager =
+                    new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        } else {
+            gridLayoutManager =
+                    new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
+        }
         // set to None to prevent shuffling
         gridLayoutManager.setGapStrategy(
                 StaggeredGridLayoutManager.GAP_HANDLING_NONE);
