@@ -63,7 +63,6 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
 
-        //
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setLogo(R.mipmap.ic_launcher);
 
@@ -96,7 +95,7 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
 
         // First param is number of columns and second param is orientation i.e Vertical or Horizontal
         gridLayoutManager =
-                new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+            new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
 
         // set to None to prevent shuffling
         gridLayoutManager.setGapStrategy(
@@ -230,7 +229,7 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
             public boolean onQueryTextSubmit(String search_query) {
                 // perform query here ONLY if different query
 
-                Toast.makeText(getApplicationContext(), search_query, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Searching for " + search_query, Toast.LENGTH_SHORT).show();
                 query = search_query;
                 RequestParams params = giveParams(currentSettings, 0);
                 apiCall(true, false, searchURL, params);
@@ -336,10 +335,11 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
         if (query.contentEquals("") ) {
             Toast.makeText(this, "Please enter query", Toast.LENGTH_SHORT).show();
             return; // don't refresh if on top pges
+        } else {
+            Toast.makeText(this, "Applying filters", Toast.LENGTH_SHORT).show();
+            RequestParams params = giveParams(currentSettings, 0);
+            apiCall(true, false, searchURL, params);
         }
-
-        RequestParams params = giveParams(currentSettings, 0);
-        apiCall(true, false, searchURL, params);
     }
 
     // When dialog is cancelled, return to original settings
@@ -351,24 +351,23 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
     public void onCheckboxClicked(View view) {
         // Is the view now checked?
         boolean checked = ((CheckBox) view).isChecked();
-
-        // Check which checkbox was clicked
-        switch(view.getId()) {
-            case R.id.cbMagazine:
-                if (checked) {
-                    Toast.makeText(this, "Filtering for Magazines", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case R.id.cbArtsAndLeisure:
-                if (checked) {
-                    Toast.makeText(this, "Filtering for Arts", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case R.id.cbMovies:
-                if (checked) {
-                    Toast.makeText(this, "Filtering for Movies", Toast.LENGTH_SHORT).show();
-                }
-        }
+//        // Check which checkbox was clicked
+//        switch(view.getId()) {
+//            case R.id.cbMagazine:
+//                if (checked) {
+//                    Toast.makeText(this, "Filtering for Magazines", Toast.LENGTH_SHORT).show();
+//                }
+//                break;
+//            case R.id.cbArtsAndLeisure:
+//                if (checked) {
+//                    Toast.makeText(this, "Filtering for Arts", Toast.LENGTH_SHORT).show();
+//                }
+//                break;
+//            case R.id.cbMovies:
+//                if (checked) {
+//                    Toast.makeText(this, "Filtering for Movies", Toast.LENGTH_SHORT).show();
+//                }
+//        }
     }
 
 }

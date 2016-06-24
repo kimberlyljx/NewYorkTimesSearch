@@ -7,12 +7,12 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.codepath.newyorktimesearch.activities.ArticleActivity;
 import com.codepath.newyorktimesearch.models.Article;
+import com.joooonho.SelectableRoundedImageView;
 
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         // Holder contains member variable for any view that will be set as you render a row
 
         private Context context;
-        @BindView(R.id.ivImage) ImageView ivImage;
+        // @BindView(R.id.ivImage) ImageView ivImage;
         @BindView(R.id.tvTitle) TextView tvTitle;
 
         // We also create a constructor that accepts the entire item row
@@ -95,24 +95,31 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         // Set item views based on the data model
         TextView tvTitle = viewHolder.tvTitle;
         tvTitle.setText(article.getHeadline());
-        ImageView imageView = viewHolder.ivImage;
+        // ImageView imageView = viewHolder.ivImage;
         // clear out recycled image from convertView from last time
-        imageView.setImageResource(0);
+//        imageView.setImageResource(0);
 
         // populate the thumbnail image & remote download image in the background
         String thumbnail = article.getThumbNail();
 
+//        imageView.setVisibility(View.GONE);
+
+        SelectableRoundedImageView image = (SelectableRoundedImageView) viewHolder.itemView.findViewById(R.id.rounded);
+        image.setImageResource(0);
+
+
         if (!TextUtils.isEmpty(thumbnail)) {
             // Set the height ratio before loading in image into Picasso
 
-            Glide.with(imageView.getContext())
+            Glide.with(image.getContext())
                     .load(thumbnail)
-                    .into(imageView);
+                    .into(image);
+
 
         } else {
-            Glide.with(imageView.getContext())
+            Glide.with(image.getContext())
                     .load(R.mipmap.ic_news)
-                    .into(imageView);
+                    .into(image);
         }
     }
 
@@ -133,5 +140,7 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         mArticles.addAll(articlesList);
         notifyDataSetChanged();
     }
+
+
 
 }
