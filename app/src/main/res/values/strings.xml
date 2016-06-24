@@ -16,4 +16,5 @@
     <string name="cancel">Cancel</string>
     <string name="news_desk_values">Desk Values</string>
     <string name="sort_order">Order By</string>
+    <string name="begin_date">Begin Date</string>
 </resources>

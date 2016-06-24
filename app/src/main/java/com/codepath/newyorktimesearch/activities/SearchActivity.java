@@ -34,6 +34,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
@@ -42,28 +43,32 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
 
     // @BindView(R.id.gvResults) GridView gvResults;
     MenuItem searchItem;
-    private SwipeRefreshLayout swipeContainer;
+
     String query = "";
     ArrayList<Article> articles;
     ArticlesAdapter rvAdapter;
-    RecyclerView rvResults;
     StaggeredGridLayoutManager gridLayoutManager;
     Setting currentSettings;
     String searchURL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
     String topURL = "https://api.nytimes.com/svc/topstories/v2/home.json";
 
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.rvResults) RecyclerView rvResults;
+    @BindView(R.id.swipeContainer) SwipeRefreshLayout swipeContainer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         ButterKnife.bind(this);
+        setSupportActionBar(toolbar);
+
+        //
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setLogo(R.mipmap.ic_launcher);
+
         this.currentSettings = new Setting();
         articles = new ArrayList<Article>();
-
-        // Lookup the recycler view in activity layout
-        rvResults = (RecyclerView) findViewById(R.id.rvResults);
         rvResults.setItemAnimator(new SlideInUpAnimator());
         // Initialize articles
         articles = new ArrayList<Article>();
@@ -75,8 +80,6 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
         SpacesItemDecoration decoration = new SpacesItemDecoration(16);
         rvResults.addItemDecoration(decoration);
 
-        // Lookup the swipe container view
-        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
         // Setup refresh listener which triggers new data loading
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override

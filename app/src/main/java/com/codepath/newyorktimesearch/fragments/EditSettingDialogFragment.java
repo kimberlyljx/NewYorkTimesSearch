@@ -18,21 +18,23 @@ import com.codepath.newyorktimesearch.models.Setting;
 
 import org.parceler.Parcels;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 // Why textView.OnEditorActionListener
 // TextView.OnEditorActionListener
 public class EditSettingDialogFragment extends DialogFragment implements DatePickerFragment.DatePickerDialogListener, AdapterView.OnItemSelectedListener {
     //private EditText mEditText;
 
-    private Spinner spinnerOrder;
     private int spinnerIndex;
 
-    private CheckBox cbMovies;
-    private CheckBox cbArtsAndLeisure;
-    private CheckBox cbMagazine;
-
-    private Button btnDialogSubmit;
-    private Button btnCancel;
-    Button btnSetDate;
+    @BindView(R.id.cbArtsAndLeisure) CheckBox cbArtsAndLeisure;
+    @BindView(R.id.cbMagazine) CheckBox cbMagazine;
+    @BindView(R.id.cbMovies) CheckBox cbMovies;
+    @BindView(R.id.spinnerOrder) Spinner spinnerOrder;
+    @BindView(R.id.btnSetDate) Button btnSetDate;
+    @BindView(R.id.btnDialogSubmit) Button btnDialogSubmit;
+    @BindView(R.id.btnCancel) Button btnCancel;
 
     Setting original;
     String formatDate = ""; // default empty
@@ -72,8 +74,9 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
                              Bundle savedInstanceState) {
         // remove titlebar on dialog
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        return inflater.inflate(R.layout.fragment_edit_setting, container);
-
+        View view = inflater.inflate(R.layout.fragment_edit_setting, container);
+        ButterKnife.bind(this, view);
+        return view;
     }
 
     private void showEditDialog() {
@@ -98,9 +101,6 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
 
         // 2. Setup a callback when the "Done" button is pressed on keyboard
         //mEditText = (EditText) view.findViewById(R.id.etQuery);
-        cbArtsAndLeisure = (CheckBox) view.findViewById(R.id.cbArtsAndLeisure);
-        cbMagazine = (CheckBox) view.findViewById(R.id.cbMagazine);
-        cbMovies = (CheckBox) view.findViewById(R.id.cbMovies);
 
         original = Parcels.unwrap(getArguments().getParcelable("originalSetting"));
 
@@ -108,14 +108,11 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
         cbMagazine.setChecked(original.filterMagazines);
         cbMovies.setChecked(original.filterMovies);
 
-        spinnerOrder = (Spinner) view.findViewById(R.id.spinnerOrder);
         spinnerOrder.setSelection(original.spinnerIndex);
         spinnerOrder.setOnItemSelectedListener(this);
 
-        btnSetDate = (Button) view.findViewById(R.id.btnSetDate);
-
         if (original.beginDate.contentEquals("")) {
-            btnSetDate.setText("Begin Date");
+            btnSetDate.setText(R.string.begin_date);
         } else {
             btnSetDate.setText(original.beginDate);
         }
@@ -127,16 +124,14 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
             }
         });
 
-        btnDialogSubmit = (Button) view.findViewById(R.id.btnDialogSubmit);
         btnDialogSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 // Return input text back to activity through the implemented listener
                 EditSettingDialogListener listener = (EditSettingDialogListener) getActivity();
                 // pass few things
 
-                Setting newSetting = new Setting(formatDate, cbArtsAndLeisure.isChecked(), cbMagazine.isChecked(), cbMovies.isChecked(),getSpinnerIndex());
+                Setting newSetting = new Setting(btnSetDate.getText().toString(), cbArtsAndLeisure.isChecked(), cbMagazine.isChecked(), cbMovies.isChecked(),getSpinnerIndex());
 
                 listener.onFinishEditDialog(newSetting);
                 // Close the dialog and return back to the parent activity
@@ -145,7 +140,6 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
             }
         });
 
-        btnCancel = (Button) view.findViewById(R.id.btnCancel);
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -157,19 +151,6 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
 
             }
         });
-
-        // For editor lister
-        // mEditText.setOnEditorActionListener(this);
-
-        // Fetch arguments from bundle and set title
-//        String query = getArguments().getString("query", "Search");
-//        getDialog().setTitle(query);
-
-        // Show soft keyboard automatically and request focus to field
-        //mEditText.requestFocus();
-//        getDialog().getWindow().setSoftInputMode(
-//                WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-
     }
 
     @Override
@@ -180,27 +161,6 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
         // When cancelled, keep original data
         listener.onFinishEditDialog( "Cancel", original );
     }
-
-    // For editor lister
-    // Fires whenever the text field has an action performed
-    // In this case, when the a key is stamped down
-//    @Override
-//    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-//
-//        if (actionId == EditorInfo.IME_NULL
-//                && event.getAction() == KeyEvent.ACTION_DOWN
-//                // set to specified 0 because of dialog and searchActionView
-//                && event.getKeyCode() == KeyEvent.KEYCODE_0 ) {
-//            // Return input text back to activity through the implemented listener
-//            EditSettingDialogListener listener = (EditSettingDialogListener) getActivity();
-//            // pass few things
-//            listener.onFinishEditDialog(mEditText.getText().toString()    );
-//            // Close the dialog and return back to the parent activity
-//            dismiss();
-//            return true;
-//        }
-//        return false;
-//    }
 
     // Spinner
     public void onItemSelected(AdapterView<?> parent, View view,
@@ -218,6 +178,11 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
     public void onNothingSelected(AdapterView<?> parent) {
         // Another interface callback
         spinnerIndex = 0;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
     }
 
 }

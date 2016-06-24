@@ -13,8 +13,13 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.codepath.newyorktimesearch.activities.ArticleActivity;
 import com.codepath.newyorktimesearch.models.Article;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import jp.wasabeef.picasso.transformations.RoundedCornersTransformation;
 
 /**
  * Created by klimjinx on 6/20/16.
@@ -36,10 +41,10 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
     // Used to cache the view within the item layout for the fast access
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         // Holder contains member variable for any view that will be set as you render a row
-        public ImageView ivImage;
-        public TextView tvTitle;
-        private Context context;
 
+        private Context context;
+        @BindView(R.id.ivImage) ImageView ivImage;
+        @BindView(R.id.tvTitle) TextView tvTitle;
 
         // We also create a constructor that accepts the entire item row
         // and does the view lookups to find each subview
@@ -47,9 +52,8 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
             // Stores the itemView in a public final member variable that can be used
             // to access the context from any ViewHolder instance.
             super(itemView);
-            ivImage = (ImageView) itemView.findViewById(R.id.ivImage);
-            tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
 
+            ButterKnife.bind(this, itemView);
             this.context = context; // Store the context for itemClick
             // Attach a click listener to the entire row view
             itemView.setOnClickListener(this);
@@ -81,8 +85,7 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         View articleView = inflater.inflate(R.layout.item_article, parent, false);
 
         // Return a new holder instance
-        ViewHolder viewHolder = new ViewHolder(context, articleView);
-        return viewHolder;
+        return new ViewHolder(context, articleView);
     }
 
     // Involves populating data into the item through holder
@@ -94,7 +97,6 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         // Set item views based on the data model
         TextView tvTitle = viewHolder.tvTitle;
         tvTitle.setText(article.getHeadline());
-
         ImageView imageView = viewHolder.ivImage;
         // clear out recycled image from convertView from last time
         imageView.setImageResource(0);
@@ -103,19 +105,15 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         String thumbnail = article.getThumbNail();
 
         if (!TextUtils.isEmpty(thumbnail)) {
-
-
-            // Image thumb = Picasso.load(thumbnail);
-
             // Set the height ratio before loading in image into Picasso
 
-
-            // Load the image into the view using Picasso
-
-            Glide.with(viewHolder.ivImage.getContext())
+            // Glide doesn't apply rounded corners....
+            Picasso.with(viewHolder.ivImage.getContext())
                     .load(thumbnail)
+                    .placeholder(R.mipmap.ic_news)
+                    .resize()
+                    .transform(new RoundedCornersTransformation(10, 10))
                     .into(imageView);
-            // Picasso.with(viewHolder.ivImage.getContext()).load(thumbnail).into(imageView);
         } else {
             Glide.with(viewHolder.ivImage.getContext())
                     .load(R.mipmap.ic_news)

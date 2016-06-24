@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:background="#FFFFFF"
+    android:background="@drawable/grid_item_corner"
     android:layout_height="wrap_content">
+
 
     <!--use wrap_content for the layout_height for RecyclerView-->
 
@@ -13,10 +14,12 @@
     <ImageView
         tools:ignore="ContentDescription"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
+        android:minHeight="220dp"
         android:id="@+id/ivImage"
         android:src="@mipmap/ic_launcher"
         android:adjustViewBounds="true"
+        android:visibility="visible"
         android:scaleType="centerCrop" />
 
     <TextView

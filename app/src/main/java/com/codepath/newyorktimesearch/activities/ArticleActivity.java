@@ -6,14 +6,15 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.codepath.newyorktimesearch.models.Article;
 import com.codepath.newyorktimesearch.R;
+import com.codepath.newyorktimesearch.models.Article;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,7 +41,12 @@ public class ArticleActivity extends AppCompatActivity {
             }
         });
 
-        getSupportActionBar().setTitle(article.getHeadline());
+        try {
+            getSupportActionBar().setTitle(article.getHeadline());
+        } catch (NullPointerException e) {
+            Log.d("ArticleActivity", "NULL Action Bar");
+        }
+
         wvArticle.loadUrl(article.getWebURL());
 
     }

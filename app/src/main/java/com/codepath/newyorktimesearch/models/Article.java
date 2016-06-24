@@ -8,7 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * Created by klimjinx on 6/20/16.
@@ -81,9 +80,9 @@ public class Article implements Parcelable {
             }
 
             JSONArray multimedia = object.getJSONArray("multimedia");
-
             if (multimedia.length() > 0) {
-                int rand = new Random().nextInt(multimedia.length());
+                // int rand = new Random().nextInt(multimedia.length());
+                int rand = multimedia.length() - 1;
                 JSONObject multimediaJSON = multimedia.getJSONObject(rand);
 
                 if ( multimediaJSON.getString("url").startsWith("http") ) {
@@ -91,6 +90,7 @@ public class Article implements Parcelable {
                 } else {
                     this.thumbNail = "http://www.nytimes.com/" + multimediaJSON.getString("url");
                 }
+
             } else {
                 this.thumbNail = "";
             }
@@ -102,7 +102,6 @@ public class Article implements Parcelable {
 
     public static ArrayList<Article> fromJSONArray(JSONArray array) {
         ArrayList<Article> results = new ArrayList<Article>();
-
         for (int i = 0; i < array.length(); i++) {
             try {
                 results.add(new Article(array.getJSONObject(i)));

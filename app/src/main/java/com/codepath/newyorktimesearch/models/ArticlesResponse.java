@@ -1,6 +1,5 @@
-package com.codepath.newyorktimesearch;
+package com.codepath.newyorktimesearch.models;
 
-import com.codepath.newyorktimesearch.models.Article;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
