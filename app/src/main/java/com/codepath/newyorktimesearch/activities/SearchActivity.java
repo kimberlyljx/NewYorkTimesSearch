@@ -165,10 +165,11 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
 
     public void fetchTimelineAsync(int page) {
         if (query.contentEquals("")) {
+            Toast.makeText(this, "Displaying top pages", Toast.LENGTH_SHORT).show();
             displayTop();
             swipeContainer.setRefreshing(false);
         } else {
-            Toast.makeText(this, query, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Searching for " + query, Toast.LENGTH_SHORT).show();
             RequestParams params = giveParams(currentSettings, page);
             apiCall(true, true, searchURL, params);
         }
@@ -228,12 +229,12 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
             @Override
             public boolean onQueryTextSubmit(String search_query) {
                 // perform query here ONLY if different query
-                if (!search_query.equalsIgnoreCase(query)) {
-                    Toast.makeText(getApplicationContext(), search_query, Toast.LENGTH_SHORT).show();
-                    query = search_query;
-                    RequestParams params = giveParams(currentSettings, 0);
-                    apiCall(true, false, searchURL, params);
-                }
+
+                Toast.makeText(getApplicationContext(), search_query, Toast.LENGTH_SHORT).show();
+                query = search_query;
+                RequestParams params = giveParams(currentSettings, 0);
+                apiCall(true, false, searchURL, params);
+
                 // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
                 // see https://code.google.com/p/android/issues/detail?id=24599
                 searchView.clearFocus();
@@ -331,10 +332,12 @@ public class SearchActivity extends AppCompatActivity  implements EditSettingDia
     public void onFinishEditDialog(Setting newSettings) {
         // Check whether top stories
         currentSettings = newSettings;
+
         if (query.contentEquals("") ) {
-            displayTop();
-            return;
+            Toast.makeText(this, "Please enter query", Toast.LENGTH_SHORT).show();
+            return; // don't refresh if on top pges
         }
+
         RequestParams params = giveParams(currentSettings, 0);
         apiCall(true, false, searchURL, params);
     }

@@ -2,6 +2,7 @@ package com.codepath.newyorktimesearch.fragments;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.widget.DatePicker;
@@ -14,6 +15,7 @@ public class DatePickerFragment extends DialogFragment implements DatePickerDial
     // Defines the listener interface
     public interface DatePickerDialogListener {
         void onFinishEditDialog(String formatDate);
+        void onFinishEditDialog(boolean cancelled);
     }
 
 
@@ -46,4 +48,10 @@ public class DatePickerFragment extends DialogFragment implements DatePickerDial
 
     }
 
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        DatePickerDialogListener listener = (DatePickerDialogListener) getTargetFragment();
+        listener.onFinishEditDialog(false);
+        super.onCancel(dialog);
+    }
 }

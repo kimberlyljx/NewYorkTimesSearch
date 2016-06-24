@@ -89,10 +89,15 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
     // This is called when the dialog is completed and the results have been passed
     @Override
     public void onFinishEditDialog(String formatDate) {
-        btnSetDate.setText(formatDate);
+        btnSetDate.setText("Begin from " + formatDate);
         this.formatDate = formatDate;
     }
 
+    @Override
+    public void onFinishEditDialog(boolean cancelled) {
+        btnSetDate.setText("No begin date");
+        this.formatDate = "";
+    }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -114,7 +119,7 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
         if (original.beginDate.contentEquals("")) {
             btnSetDate.setText(R.string.begin_date);
         } else {
-            btnSetDate.setText(original.beginDate);
+            btnSetDate.setText("Begin from " + original.beginDate);
         }
 
         btnSetDate.setOnClickListener(new View.OnClickListener() {
@@ -131,7 +136,7 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
                 EditSettingDialogListener listener = (EditSettingDialogListener) getActivity();
                 // pass few things
 
-                Setting newSetting = new Setting(btnSetDate.getText().toString(), cbArtsAndLeisure.isChecked(), cbMagazine.isChecked(), cbMovies.isChecked(),getSpinnerIndex());
+                Setting newSetting = new Setting(formatDate, cbArtsAndLeisure.isChecked(), cbMagazine.isChecked(), cbMovies.isChecked(), getSpinnerIndex() );
 
                 listener.onFinishEditDialog(newSetting);
                 // Close the dialog and return back to the parent activity

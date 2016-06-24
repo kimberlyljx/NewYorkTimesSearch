@@ -5,6 +5,10 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:id="@+id/etSettings"
+    android:paddingBottom="15dp"
+    android:paddingTop="15dp"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
     android:layout_gravity="center">
 
     <!--<EditText-->
@@ -17,39 +21,41 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Begin Date"
+        android:text="@string/begin_date"
         android:id="@+id/btnSetDate"
         android:layout_alignParentTop="true"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="15dp"
         android:layout_centerHorizontal="true" />
-
-    <Spinner
-        android:id="@+id/spinnerOrder"
-        android:layout_width="200dp"
-        android:entries="@array/orders_array"
-        android:prompt="@string/orders_prompt"
-        android:layout_height="50dp"
-        android:spinnerMode="dropdown"
-        android:layout_below="@+id/btnSetDate"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
 
     <RelativeLayout
         android:id="@+id/llDialog"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="110dp"
-        android:layout_marginTop="10dp"
-        android:layout_below="@+id/spinnerOrder"
-        android:layout_centerHorizontal="true">
+        android:layout_height="150dp"
+        android:paddingBottom="10dp"
+        android:layout_below="@+id/btnSetDate"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
+
+        <Spinner
+            android:id="@+id/spinnerOrder"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:paddingBottom="15dp"
+            android:entries="@array/orders_array"
+            android:prompt="@string/orders_prompt"
+            android:spinnerMode="dropdown"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
 
         <CheckBox android:id="@+id/cbArtsAndLeisure"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/artsandleisure"
             android:onClick="onCheckboxClicked"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_below="@id/spinnerOrder"
+            android:layout_alignLeft="@id/spinnerOrder" />
 
         <CheckBox android:id="@+id/cbMagazine"
             android:layout_width="wrap_content"
@@ -72,46 +78,43 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="8dp"
-            android:text="@string/news_desk_values"
-            android:id="@+id/tvDeskValues"
-            android:layout_alignParentTop="true"
+            android:text="@string/sort_order"
+            android:id="@+id/tvSortOrder"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:paddingTop="5dp"
+            android:layout_toStartOf="@id/spinnerOrder"
+            android:layout_toLeftOf="@id/spinnerOrder">
+        </TextView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/news_desk_values"
+            android:id="@+id/tvCheckBox"
+            android:layout_alignParentLeft="true"
+            android:paddingTop="5dp"
+            android:layout_alignTop="@id/cbArtsAndLeisure">
+        </TextView>
 
     </RelativeLayout>
 
     <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="75dp"
-        android:layout_height="wrap_content"
-        android:text="@string/save"
-        android:layout_below="@id/llDialog"
-        android:id="@+id/btnDialogSubmit" />
-
-    <Button
-        android:layout_width="80dp"
-        android:layout_height="wrap_content"
-        android:text="@string/cancel"
-        android:onClick="onCancel"
-        android:layout_below="@id/llDialog"
-        android:layout_marginRight="5dp"
-        android:layout_marginEnd="5dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:id="@+id/btnCancel" />
-
-    <TextView
+        android:background="@color/grey"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:text="@string/sort_order"
-        android:id="@+id/tvSortOrder"
-        android:layout_alignTop="@+id/spinnerOrder"
-        android:layout_toLeftOf="@+id/spinnerOrder"
-        android:layout_toStartOf="@+id/spinnerOrder" />
+        android:onClick="onCancel"
+        android:id="@+id/btnCancel"
+        android:text="@string/cancel"
+        android:layout_below="@id/llDialog" />
+
+    <Button
+        android:background="@color/colorAccent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/save"
+        android:layout_below="@+id/llDialog"
+        android:id="@+id/btnDialogSubmit"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>

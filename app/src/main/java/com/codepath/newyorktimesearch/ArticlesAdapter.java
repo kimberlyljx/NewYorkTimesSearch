@@ -13,13 +13,11 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.codepath.newyorktimesearch.activities.ArticleActivity;
 import com.codepath.newyorktimesearch.models.Article;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import jp.wasabeef.picasso.transformations.RoundedCornersTransformation;
 
 /**
  * Created by klimjinx on 6/20/16.
@@ -107,15 +105,12 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         if (!TextUtils.isEmpty(thumbnail)) {
             // Set the height ratio before loading in image into Picasso
 
-            // Glide doesn't apply rounded corners....
-            Picasso.with(viewHolder.ivImage.getContext())
+            Glide.with(imageView.getContext())
                     .load(thumbnail)
-                    .placeholder(R.mipmap.ic_news)
-                    .resize()
-                    .transform(new RoundedCornersTransformation(10, 10))
                     .into(imageView);
+
         } else {
-            Glide.with(viewHolder.ivImage.getContext())
+            Glide.with(imageView.getContext())
                     .load(R.mipmap.ic_news)
                     .into(imageView);
         }
