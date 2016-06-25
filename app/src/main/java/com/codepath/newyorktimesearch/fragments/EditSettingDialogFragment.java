@@ -119,6 +119,7 @@ public class EditSettingDialogFragment extends DialogFragment implements DatePic
         if (original.beginDate.contentEquals("")) {
             btnSetDate.setText(R.string.begin_date);
         } else {
+            formatDate = original.beginDate;
             btnSetDate.setText("Begin from " + original.beginDate);
         }
 
